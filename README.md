@@ -1,6 +1,6 @@
-**E-Commerce Website Specialy Tailored For Computer Needs**
+**E-Commerce Website Specialy Tailored For Computer Needs Version - 2**
 
-**Site is live on Render** -- https://tech-shop-zqrl.onrender.com/
+**Site is live on Render** -- Pending
 
 **Stack & Library Details**
 
@@ -9,7 +9,7 @@
  Javascript is the heart and brain of this project - built using MERN stack - MongoDb, Express Js, React Js (functional components), Node Js.
 
 *Libraries* - 
-  1. Frontend UI - React-bootstrap Mainly - Will be migrating to Material UI for improved features
+  1. Frontend UI - Shadcn UI + Tailwind css
   2. Backend - Mongoose, Express Js, JWT, crypto, multer, cookie-parser, razorpay
   3. Frontend - React Js, RTK (React Redux & Redux toolkit), React-Router-Dom, React-Toastify, React-Icons etc   
 
@@ -32,6 +32,5 @@
 8. Nav bar with Category selection, pages with category wise products to display -- **Pending**
 9. Sorting, Filtering, Searching Products on Products page, on Custom PC Building Page -- **Pending**
 10. Update Stock on Order Placement/Order Payment -- ~~**Pending -- Important**~~ **Completed**
-11. UI/UX improvements - Update theme, migrate from react-bootstrap to material-ui, page wise improvements -- **Pending**
 12. Code refractoring - Check and apply DRY principles, check for memory leaks, apply memoization where needed -- **Pending**
 13. Write Unit Test -- **Pending** 
