@@ -124,6 +124,7 @@ const HomeScreen = () => {
                     rating={product?.rating}
                     ratingCount={product?.numReviews}
                     price={product?.price}
+                    productId={product?._id}
                   />
                 </div>
               </CarouselItem>
@@ -156,6 +157,7 @@ const HomeScreen = () => {
                     rating={product?.rating}
                     ratingCount={product?.numReviews}
                     price={product?.price}
+                    productId={product?._id}
                   />
                 </div>
               </CarouselItem>

@@ -2,15 +2,24 @@ import React from "react";
 import { Card, CardContent } from "./ui/card";
 import imageToAdd from "./assets/images/psu-1.png";
 import { Star } from "lucide-react";
+import { Link } from "react-router-dom";
 
-const ProductCard = ({ image, category, name, rating, ratingCount, price }) => {
+const ProductCard = ({
+  image,
+  category,
+  name,
+  rating,
+  ratingCount,
+  price,
+  productId,
+}) => {
   return (
-    <div>
+    <Link to={`/product/${productId}`}>
       <Card className="w-50 h-70 flex flex-col overflow-hidden border border-transparent transition-transform transform hover:scale-105 hover:border-gray-300 hover:shadow-lg p-2 text-left group">
         <img src={imageToAdd} alt="product" className="h-1/2 object-cover" />
         <CardContent className="h-1/2 p-4 flex flex-col justify-between">
           <div>
-            <div className="text-sm font-semibold text-gray-500">
+            <div className="text-xs font-semibold text-gray-500">
               {category}
             </div>
             <h2 className="text-[16px] font-bold transition-colors group-hover:text-primary group-hover:underline">
@@ -31,7 +40,7 @@ const ProductCard = ({ image, category, name, rating, ratingCount, price }) => {
           <div className="text-lg font-bold mt-2">${price}</div>
         </CardContent>
       </Card>
-    </div>
+    </Link>
     // <div className="relative">
     //   {/* Add a wrapper with position relative */}
     //   <Card className="w-50 h-80 flex flex-col border border-transparent transition-transform transform hover:scale-105 hover:border-gray-300 hover:shadow-lg p-2 text-left group">
