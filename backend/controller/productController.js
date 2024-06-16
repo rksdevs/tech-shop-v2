@@ -215,4 +215,44 @@ const getAllCategories = asyncHandler(async(req, res) => {
     }
 })
 
-export {getAllProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductsByCategory, updateProductStock, createProductReview, getTopRatedProducts, getAllCategories}
+//@desc Fetch top rated products
+//@route GET /api/products/allBrands
+//@access Public
+const getAllBrands = asyncHandler(async(req, res) => {
+    try {
+        const products = (await Product.find());
+        if (products.length > 0) {
+            const brands = products.map((product)=> product.brand)
+            const uniqueBrands = [];
+            brands.forEach((brand)=> {
+                if (!uniqueBrands.includes(brand)) {
+                    uniqueBrands.push(brand)
+                }
+            })
+            res.status(200).json(uniqueBrands)
+        } else {
+            res.status(404);
+        throw new Error("Brand not found! Here is a pancake..")
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(404);
+        throw new Error("Brand not found! Here is a pancake..")
+    }
+})
+
+//@desc Fetch all products by brand
+//@route GET /api/products/:brand
+//@access Public
+const getProductsByBrands = asyncHandler(async(req,res)=>{
+    const brandToSearch = req.params.brand;
+    const product = await Product.find({brand: brandToSearch})
+    if(product.length > 0) {
+        res.status(200).json(product);
+    } else {
+        res.status(404);
+        throw new Error("Brand not found! Here is a pancake..")
+    }
+})
+
+export {getAllProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductsByCategory, updateProductStock, createProductReview, getTopRatedProducts, getAllCategories, getAllBrands, getProductsByBrands}

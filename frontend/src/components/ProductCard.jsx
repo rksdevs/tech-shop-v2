@@ -12,32 +12,57 @@ const ProductCard = ({
   ratingCount,
   price,
   productId,
+  className = "",
+  imgClass = "",
+  cardContentClass = "",
+  categoryClass = "",
+  nameClass = "",
+  sectionClass = "",
+  ratingClass = "",
+  numReviewsClass = "",
+  priceClass = "",
 }) => {
   return (
     <Link to={`/product/${productId}`}>
-      <Card className="w-50 h-70 flex flex-col overflow-hidden border border-transparent transition-transform transform hover:scale-105 hover:border-gray-300 hover:shadow-lg p-2 text-left group">
-        <img src={imageToAdd} alt="product" className="h-1/2 object-cover" />
-        <CardContent className="h-1/2 p-4 flex flex-col justify-between">
+      <Card
+        className={`w-50 h-70 flex flex-col overflow-hidden border border-transparent transition-transform transform hover:scale-105 hover:border-gray-300 hover:shadow-lg p-2 text-left group ${className}`}
+      >
+        <img
+          src={imageToAdd}
+          alt="product"
+          className={`h-1/2 object-cover ${imgClass}`}
+        />
+        <CardContent
+          className={`h-1/2 p-4 flex flex-col justify-between ${cardContentClass}`}
+        >
           <div>
-            <div className="text-xs font-semibold text-gray-500">
+            <div
+              className={`text-xs font-semibold text-gray-500 ${categoryClass}`}
+            >
               {category}
             </div>
-            <h2 className="text-[16px] font-bold transition-colors group-hover:text-primary group-hover:underline">
+            <h2
+              className={`text-[16px] font-bold transition-colors group-hover:text-primary group-hover:underline ${nameClass}`}
+            >
               {name.length > 25 ? `${name.substring(0, 25)}...` : name}
             </h2>
           </div>
-          <div className="flex items-center mt-2">
-            <div className="flex items-center text-yellow-500">
+          <div className={`flex items-center mt-2 ${sectionClass}`}>
+            <div className={`flex items-center text-primary`}>
               {Array.from({ length: 5 }, (_, index) => (
                 <Star
                   key={index}
-                  className={`h-4 w-4 ${index < rating ? "fill-current" : ""}`}
+                  className={`h-4 w-4 ${ratingClass} ${
+                    index < rating ? "fill-current" : ""
+                  }`}
                 />
               ))}
             </div>
-            <div className="text-sm text-gray-500 ml-2">({ratingCount})</div>
+            <div className={`text-sm text-gray-500 ml-2 ${numReviewsClass}`}>
+              ({ratingCount})
+            </div>
           </div>
-          <div className="text-lg font-bold mt-2">${price}</div>
+          <div className={`text-lg font-bold mt-2 ${priceClass}`}>${price}</div>
         </CardContent>
       </Card>
     </Link>
