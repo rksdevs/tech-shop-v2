@@ -10,6 +10,9 @@ import ProductCard from './components/ProductCard';
 import ProductScreen from './Screens/ProductScreen';
 import AllProducts from './Screens/AllProducts';
 import AccountSettings from './Screens/AccountSettings';
+import Login from './Screens/Login';
+import Register from './Screens/Register';
+import PrivateRoute from './components/PrivateRoute';
 
 const router = createBrowserRouter(createRoutesFromElements(
 <Route path='/' element={<App />}>
@@ -17,9 +20,12 @@ const router = createBrowserRouter(createRoutesFromElements(
   <Route path='/productCard' index element={<ProductCard />} />
   <Route path='/product/:id' element={<ProductScreen />} />
   <Route path='/allproducts' element={<AllProducts />} />
+  <Route path='/login' element={<Login />} />
+  <Route path='/register' element={<Register />} />
 
+  <Route path='' element={<PrivateRoute />}>
   <Route path='/myaccount' element={<AccountSettings />} />
-
+  </Route>
 
 </Route>))
 

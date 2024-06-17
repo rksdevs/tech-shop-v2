@@ -11,19 +11,27 @@ import {
 import { Input } from "./ui/input";
 import Container from "./Container";
 import { Badge } from "./ui/badge";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useState } from "react";
 
 export function NavbarMiddle() {
+  const { userInfo } = useSelector((state) => state.auth);
+  const { cart } = useSelector((state) => state.cart);
+  const [open, setOpen] = useState(false);
   return (
     <div className="flex w-full flex-col">
       <header className="sticky top-0 flex h-14 items-center gap-4 bg-background px-4 md:px-6">
         <Container className="flex items-center">
           <div className="flex w-full items-center flex-row">
-            <h2 className="text-[24px] font-semibold flex flex-row items-center">
-              COMPUTERMAKERS
-              <div className="text-primary text-[48px] mt-[5px] flex h-[50px] items-end">
-                .
-              </div>
-            </h2>
+            <Link to="/">
+              <h2 className="text-[24px] font-semibold flex flex-row items-center">
+                COMPUTERMAKERS
+                <div className="text-primary text-[48px] mt-[5px] flex h-[50px] items-end">
+                  .
+                </div>
+              </h2>
+            </Link>
           </div>
           <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
             <form className="ml-auto flex-1 sm:flex-initial">
@@ -43,26 +51,36 @@ export function NavbarMiddle() {
                 <Badge className="h-[12px]">0</Badge>
               </div>
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="rounded-full"
-                >
-                  <CircleUser className="h-5 w-5" />
-                  <span className="sr-only">Toggle user menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem>Support</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Logout</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {userInfo ? (
+              <DropdownMenu open={open} onOpenChange={setOpen}>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="rounded-full"
+                    onClick={() => setOpen(!open)}
+                  >
+                    <CircleUser className="h-5 w-5" />
+                    <span className="sr-only">Toggle user menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <Link to="/myaccount" onClick={() => setOpen(false)}>
+                      Account Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>Logout</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button>
+                <Link to="/login">Login</Link>
+              </Button>
+            )}
           </div>
         </Container>
       </header>

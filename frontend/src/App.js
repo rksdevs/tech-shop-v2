@@ -6,6 +6,7 @@ import { NavbarMiddle } from './components/NavbarMiddle';
 import { NavbarTop } from './components/NavbarTop';
 import { ModeToggle } from './components/toggle-theme';
 import { Outlet } from 'react-router-dom';
+import { Toaster } from './components/ui/toaster';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <ModeToggle /> */}
       </Container>
       <Footer />
+      <Toaster />
     </div>
   );
 }
