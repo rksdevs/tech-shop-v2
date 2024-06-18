@@ -13,6 +13,7 @@ import AccountSettings from './Screens/AccountSettings';
 import Login from './Screens/Login';
 import Register from './Screens/Register';
 import PrivateRoute from './components/PrivateRoute';
+import CartScreen from './Screens/CartScreen';
 
 const router = createBrowserRouter(createRoutesFromElements(
 <Route path='/' element={<App />}>
@@ -22,6 +23,7 @@ const router = createBrowserRouter(createRoutesFromElements(
   <Route path='/allproducts' element={<AllProducts />} />
   <Route path='/login' element={<Login />} />
   <Route path='/register' element={<Register />} />
+  <Route path='/cart' element={<CartScreen />} />
 
   <Route path='' element={<PrivateRoute />}>
   <Route path='/myaccount' element={<AccountSettings />} />

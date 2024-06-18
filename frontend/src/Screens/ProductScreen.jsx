@@ -52,6 +52,7 @@ import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { useGetProductsQuery } from "../Features/productApiSlice";
+import { addToCart } from "../Features/cartSlice";
 
 const ProductScreen = () => {
   const reviews = [
@@ -125,7 +126,7 @@ const ProductScreen = () => {
   const { id: productId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [noOfProduct, setNoOfProduct] = useState(1);
+  const [qty, setQty] = useState(1);
   const {
     data: product,
     isLoading: productLoading,
@@ -142,6 +143,11 @@ const ProductScreen = () => {
     pageNumber,
   });
   const { userInfo } = useSelector((state) => state.auth);
+  const handleAddToCart = () => {
+    dispatch(addToCart({ ...product, qty }));
+    navigate("/cart");
+  };
+
   return (
     <div className="flex w-full flex-col gap-8">
       <Container className="flex flex-col gap-8">
@@ -206,13 +212,14 @@ const ProductScreen = () => {
                       // className={`h-4 w-4 ${
                       //   index < product?.rating ? "fill-current" : ""
                       // }`}
-                      className={`h-4 w-4 ${index < 4 ? "fill-current" : ""}`}
+                      className={`h-4 w-4 ${
+                        index < product?.rating ? "fill-current" : ""
+                      }`}
                     />
                   ))}
                 </div>
                 <div className="text-sm text-gray-500 ml-2">
-                  {/* ({product?.numReviews}) */}
-                  (129)
+                  ({product?.numReviews})
                 </div>
               </div>
               <div className="flex items-center mt-2 font-bold text-l text-left pb-2 border-b">
@@ -262,12 +269,18 @@ const ProductScreen = () => {
                   variant="secondary"
                   size="icon"
                   className="rounded-3xl"
-                  disabled={noOfProduct}
+                  disabled={qty === 1}
+                  onClick={() => setQty(qty - 1)}
                 >
                   -
                 </Button>
-                {noOfProduct}
-                <Button variant="secondary" size="icon" className="rounded-3xl">
+                {qty}
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  onClick={() => setQty(qty + 1)}
+                  className="rounded-3xl"
+                >
                   +
                 </Button>
               </div>
@@ -277,6 +290,7 @@ const ProductScreen = () => {
                   size="icon"
                   variant="outline"
                   className="p-2 border border-solid border-primary"
+                  onClick={handleAddToCart}
                 >
                   <ShoppingCart className="text-primary" />
                 </Button>

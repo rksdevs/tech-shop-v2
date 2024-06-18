@@ -11,13 +11,14 @@ import {
 import { Input } from "./ui/input";
 import Container from "./Container";
 import { Badge } from "./ui/badge";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useState } from "react";
 
 export function NavbarMiddle() {
+  const navigate = useNavigate();
   const { userInfo } = useSelector((state) => state.auth);
-  const { cart } = useSelector((state) => state.cart);
+  const { cartItems } = useSelector((state) => state.cart);
   const [open, setOpen] = useState(false);
   return (
     <div className="flex w-full flex-col">
@@ -44,11 +45,20 @@ export function NavbarMiddle() {
                 />
               </div>
             </form>
-            <div className="flex items-center gap-4">
+            <div
+              className="flex items-center gap-4 hover:cursor-pointer"
+              onClick={() => navigate("/cart")}
+            >
               <ShoppingCart className="h-[28px] w-[28px]" />
               <div className="flex flex-col">
                 <span>Cart</span>
-                <Badge className="h-[12px]">0</Badge>
+                {cartItems?.length > 0 ? (
+                  <Badge className="h-[12px]">
+                    {cartItems.reduce((sum, item) => sum + item.qty, 0)}
+                  </Badge>
+                ) : (
+                  <Badge className="h-[12px]">0</Badge>
+                )}
               </div>
             </div>
             {userInfo ? (
