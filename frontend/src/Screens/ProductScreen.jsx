@@ -300,7 +300,7 @@ const ProductScreen = () => {
         </div>
         <div className="product-details-section flex">
           <Tabs defaultValue="description" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="">
               <TabsTrigger value="description">Description</TabsTrigger>
               <TabsTrigger value="specification">Specification</TabsTrigger>
               <TabsTrigger value="returns">Returns & Warranty</TabsTrigger>
