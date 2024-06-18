@@ -15,6 +15,7 @@ import Register from './Screens/Register';
 import PrivateRoute from './components/PrivateRoute';
 import CartScreen from './Screens/CartScreen';
 import CheckoutScreen from './Screens/CheckoutScreen';
+import PlaceOrderScreen from './Screens/PlaceOrderScreen';
 
 const router = createBrowserRouter(createRoutesFromElements(
 <Route path='/' element={<App />}>
@@ -29,6 +30,7 @@ const router = createBrowserRouter(createRoutesFromElements(
   <Route path='' element={<PrivateRoute />}>
     <Route path='/myaccount' element={<AccountSettings />} />
     <Route path='/checkout' element={<CheckoutScreen />} />
+    <Route path='/placeorder' element={<PlaceOrderScreen />} />
   </Route>
 
 </Route>))

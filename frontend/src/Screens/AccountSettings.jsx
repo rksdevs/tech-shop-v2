@@ -19,8 +19,10 @@ import addressOne from "../components/assets/images/address-1.jpg";
 import { Button } from "../components/ui/button";
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
+import { useSelector } from "react-redux";
 
 const AccountSettings = () => {
+  const { userInfo } = useSelector((state) => state.auth);
   return (
     <div className="flex w-full flex-col gap-8">
       <Container className="flex flex-col gap-8">
@@ -35,8 +37,8 @@ const AccountSettings = () => {
                   />
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
-                <CardTitle>John Doe</CardTitle>
-                <CardDescription>johndoe@mail.com</CardDescription>
+                <CardTitle>{userInfo?.name}</CardTitle>
+                <CardDescription>{userInfo?.email}</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
                 <ul className="flex flex-col gap-4">
@@ -145,15 +147,19 @@ const AccountSettings = () => {
                     <div className="grid gap-8">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
-                          <Label htmlFor="first-name">First name</Label>
-                          <Input id="first-name" placeholder="Max" required />
+                          <Label htmlFor="name">Name</Label>
+                          <Input
+                            id="name"
+                            placeholder={userInfo?.name}
+                            required
+                          />
                         </div>
                         <div className="grid gap-2">
-                          <Label htmlFor="last-name">Last name</Label>
+                          <Label htmlFor="last-name">Email</Label>
                           <Input
                             id="last-name"
-                            placeholder="Robinson"
-                            required
+                            placeholder={userInfo?.email}
+                            disabled
                           />
                         </div>
                       </div>
