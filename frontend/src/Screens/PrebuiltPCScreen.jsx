@@ -2,8 +2,6 @@ import Container from "../components/Container";
 import { Breadcrumbs } from "../components/Breadcrumbs";
 import customPcImg from "../components/assets/images/pc-build-4.jpg";
 import {
-  Truck,
-  Copy,
   Cpu,
   GalleryThumbnails,
   Gamepad2,
@@ -15,7 +13,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardFooter,
 } from "../components/ui/card";
 import { useState } from "react";
@@ -24,16 +21,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { saveShippingAddress } from "../Features/cartSlice";
 import { Separator } from "../components/ui/separator";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "../components/ui/drawer";
 import {
   Popover,
   PopoverContent,

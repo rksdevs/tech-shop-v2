@@ -17,6 +17,7 @@ import CartScreen from './Screens/CartScreen';
 import CheckoutScreen from './Screens/CheckoutScreen';
 import PlaceOrderScreen from './Screens/PlaceOrderScreen';
 import PrebuiltPCScreen from './Screens/PrebuiltPCScreen';
+import BuildCustomPCScreen from './Screens/BuildCustomPCScreen';
 
 const router = createBrowserRouter(createRoutesFromElements(
 <Route path='/' element={<App />}>
@@ -33,6 +34,7 @@ const router = createBrowserRouter(createRoutesFromElements(
     <Route path='/myaccount' element={<AccountSettings />} />
     <Route path='/checkout' element={<CheckoutScreen />} />
     <Route path='/placeorder' element={<PlaceOrderScreen />} />
+    <Route path='/buildcustompc' element={<BuildCustomPCScreen />} />
   </Route>
 
 </Route>))
