@@ -16,6 +16,7 @@ import PrivateRoute from './components/PrivateRoute';
 import CartScreen from './Screens/CartScreen';
 import CheckoutScreen from './Screens/CheckoutScreen';
 import PlaceOrderScreen from './Screens/PlaceOrderScreen';
+import PrebuiltPCScreen from './Screens/PrebuiltPCScreen';
 
 const router = createBrowserRouter(createRoutesFromElements(
 <Route path='/' element={<App />}>
@@ -26,6 +27,7 @@ const router = createBrowserRouter(createRoutesFromElements(
   <Route path='/login' element={<Login />} />
   <Route path='/register' element={<Register />} />
   <Route path='/cart' element={<CartScreen />} />
+  <Route path='/prebuilt-pc' element={<PrebuiltPCScreen />} />
 
   <Route path='' element={<PrivateRoute />}>
     <Route path='/myaccount' element={<AccountSettings />} />

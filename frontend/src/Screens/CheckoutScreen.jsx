@@ -1,15 +1,6 @@
 import Container from "../components/Container";
 import { Breadcrumbs } from "../components/Breadcrumbs";
-import {
-  Headset,
-  ShieldCheck,
-  Truck,
-  IndianRupee,
-  Trash2,
-  Share2,
-  Copy,
-  CreditCard,
-} from "lucide-react";
+import { Truck, Copy } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -18,16 +9,8 @@ import {
   CardDescription,
   CardFooter,
 } from "../components/ui/card";
-import ProductImg from "../components/assets/images/Designer.png";
 import { useState } from "react";
 import { Button } from "../components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
 import { useDispatch, useSelector } from "react-redux";
 import { Input } from "../components/ui/input";
 import {
@@ -42,8 +25,6 @@ import { saveShippingAddress } from "../Features/cartSlice";
 import { Separator } from "../components/ui/separator";
 
 const CheckoutScreen = () => {
-  // const { cartItems, totalPrice } = useSelector((state) => state.cart);
-  // const [qty, setQty] = useState(0);
   const cart = useSelector((state) => state.cart);
   const { shippingAddress } = cart;
 
