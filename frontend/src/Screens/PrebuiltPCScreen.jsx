@@ -1,14 +1,14 @@
 import Container from "../components/Container";
 import { Breadcrumbs } from "../components/Breadcrumbs";
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
+import customPcImg from "../components/assets/images/pc-build-4.jpg";
 import {
   Truck,
   Copy,
-  CircleUser,
-  Home,
-  LogOut,
-  ScrollText,
-  ShoppingCart,
+  Cpu,
+  GalleryThumbnails,
+  Gamepad2,
+  Eye,
+  IndianRupee,
 } from "lucide-react";
 import {
   Card,
@@ -21,17 +21,24 @@ import {
 import { useState } from "react";
 import { Button } from "../components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
-import { Input } from "../components/ui/input";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../components/ui/tabs";
-import { Label } from "../components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { saveShippingAddress } from "../Features/cartSlice";
 import { Separator } from "../components/ui/separator";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "../components/ui/drawer";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../components/ui/popover";
 
 const PrebuiltPCScreen = () => {
   const cart = useSelector((state) => state.cart);
@@ -66,149 +73,546 @@ const PrebuiltPCScreen = () => {
             <h1 className="text-[28px] font-extrabold">Prebuilt PCs</h1>
           </div>
           <Separator />
-          <div className="flex gap-2">
-            <Card>
-              <Card className="h-fit">
-                <CardHeader className="items-center border-b">
-                  <Avatar className="h-[150px] w-[150px] mb-4">
-                    <AvatarImage
-                      src="https://github.com/shadcn.png"
-                      alt="@shadcn"
-                    />
-                    <AvatarFallback>CN</AvatarFallback>
-                  </Avatar>
-                  <CardTitle>Striker</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <ul className="flex flex-col gap-4">
-                    <li className="flex gap-4">
-                      {" "}
-                      <span>
-                        {" "}
-                        <CircleUser />
-                      </span>{" "}
-                      <span>Account Details</span>
-                    </li>
-                    <li className="flex gap-4">
-                      {" "}
-                      <span>
-                        {" "}
-                        <Home />
-                      </span>{" "}
-                      <span>Addresses</span>
-                    </li>
-                    <li className="flex gap-4">
-                      {" "}
-                      <span>
-                        {" "}
-                        <ScrollText />
-                      </span>{" "}
-                      <span>Orders</span>
-                    </li>
-                    <li className="flex gap-4">
-                      {" "}
-                      <span>
-                        {" "}
-                        <ShoppingCart />
-                      </span>{" "}
-                      <span>Cart</span>
-                    </li>
-                    <li className="flex gap-4">
-                      {" "}
-                      <span>
-                        {" "}
-                        <LogOut />
-                      </span>{" "}
-                      <span>Logout</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </Card>
-            <Card className="overflow-hidden w-1/3">
-              <CardHeader className="flex flex-row items-start bg-muted/50">
-                <div className="grid gap-0.5">
-                  <CardTitle className="group flex items-center gap-2 text-lg">
-                    Cart Summary
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
-                    >
-                      <Copy className="h-3 w-3" />
-                      <span className="sr-only">Copy Order ID</span>
-                    </Button>
-                  </CardTitle>
-                  <CardDescription>Date: November 23, 2023</CardDescription>
-                </div>
-                <div className="hidden ml-auto flex items-center gap-1">
-                  <Button size="sm" variant="outline" className="h-8 gap-1">
-                    <Truck className="h-3.5 w-3.5" />
-                    <span className="lg:sr-only xl:not-sr-only xl:whitespace-nowrap">
-                      Track Order
-                    </span>
-                  </Button>
-                </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <Card className="h-fit ">
+              <CardHeader className="items-center border-b p-4">
+                <img
+                  src={customPcImg}
+                  alt="custom pc"
+                  className="w-[250px] h-[250px]"
+                />
+                <CardTitle>Striker</CardTitle>
               </CardHeader>
-              <CardContent className="p-6 text-sm">
-                <div className="grid gap-3">
-                  <div className="font-semibold">Order Details</div>
-                  <ul className="grid gap-3">
-                    <li className="flex items-center justify-between">
-                      <span className="text-muted-foreground">
-                        Glimmer Lamps x <span>2</span>
-                      </span>
-                      <span>$250.00</span>
-                    </li>
-                    <li className="flex items-center justify-between">
-                      <span className="text-muted-foreground">
-                        Aqua Filters x <span>1</span>
-                      </span>
-                      <span>$49.00</span>
-                    </li>
-                  </ul>
-                  <Separator className="my-2" />
-                  <ul className="grid gap-3">
-                    <li className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Subtotal</span>
-                      <span>$299.00</span>
-                    </li>
-                    <li className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Shipping</span>
-                      <span>$5.00</span>
-                    </li>
-                    <li className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Tax</span>
-                      <span>$25.00</span>
-                    </li>
-                    <li className="flex items-center justify-between font-semibold">
-                      <span className="text-muted-foreground">Total</span>
-                      <span>$329.00</span>
-                    </li>
-                  </ul>
-                </div>
-                <Separator className="my-4" />
-                <div className="grid gap-3">
-                  <div className="font-semibold">Customer Information</div>
-                  <dl className="grid gap-3">
-                    <div className="flex items-center justify-between">
-                      <dt className="text-muted-foreground">Customer</dt>
-                      <dd>Liam Johnson</dd>
+              <CardContent className="pt-6">
+                <div>
+                  <div className="flex gap-4 items-start pb-4 last:mb-0 last:pb-0">
+                    <Cpu />
+                    <div className="space-y-1 text-left">
+                      <p className="text-sm font-medium leading-none">
+                        Platform
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Based on Intel Platform
+                      </p>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <dt className="text-muted-foreground">Email</dt>
-                      <dd>
-                        <a href="mailto:">liam@acme.com</a>
-                      </dd>
+                  </div>
+                  <div className="flex gap-4 items-start pb-4 last:mb-0 last:pb-0">
+                    <GalleryThumbnails />
+                    <div className="space-y-1 text-left">
+                      <p className="text-sm font-medium leading-none">
+                        Category
+                      </p>
+                      <p className="text-sm text-muted-foreground">Gaming</p>
                     </div>
-                  </dl>
+                  </div>
+                  <div className="flex gap-4 items-start pb-4 last:mb-0 last:pb-0">
+                    <Gamepad2 />
+                    <div className="space-y-1 text-left">
+                      <p className="text-sm font-medium leading-none">
+                        Recommended Uses
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Entry-mid level gaming
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-start pb-4 last:mb-0 last:pb-0">
+                    <IndianRupee />
+                    <div className="space-y-1 text-left">
+                      <p className="text-sm font-medium leading-none">Budget</p>
+                      <p className="text-sm text-muted-foreground">
+                        Between ₹150000
+                      </p>
+                    </div>
+                  </div>
                 </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button className="flex gap-2 mt-4 w-full">
+                      <span>Preview</span>
+                      <Eye />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[450px]">
+                    <Card className="overflow-hidden w-full">
+                      <CardHeader className="flex flex-row items-start bg-muted/50 p-5">
+                        <div className="grid gap-0.5">
+                          <CardTitle className="group flex items-center gap-2 text-lg">
+                            Specifications
+                          </CardTitle>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-6 text-sm">
+                        <div className="grid gap-3">
+                          <ul className="grid gap-3">
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Processor
+                              </span>
+                              <span>
+                                Intel i9 13900K 4.5Ghz 9 Core 18 Threads
+                              </span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Motherboard
+                              </span>
+                              <span>MSI Z650 Gaming Pro Motherboard</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Graphics
+                              </span>
+                              <span>
+                                Asus ROG Nvidia 4070 TI 12 GB Triple Fans
+                              </span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">RAM</span>
+                              <span>Gskill Ripjaws 16x2 DDR5 3600Ghz</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Memory
+                              </span>
+                              <span>2x 1TB WD Black NVM.e</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Cooler
+                              </span>
+                              <span>Nzxt Kraken 3x120mm Liquid Cooler</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Power Supply
+                              </span>
+                              <span>Corsair 1000w Gold - Fully Modular</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Cabinet
+                              </span>
+                              <span>Lian Li - Mid Tower</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </CardContent>
+                      <CardFooter className="flex justify-between items-center border-t bg-muted/50 px-6 py-3">
+                        <span className="text-xl font-bold text-primary">
+                          ₹150000
+                        </span>
+                        <Button>Add to Cart</Button>
+                      </CardFooter>
+                    </Card>
+                  </PopoverContent>
+                </Popover>
               </CardContent>
-              <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
-                <div className="text-xs text-muted-foreground">
-                  Created <time dateTime="2023-11-23">November 23, 2023</time>
+            </Card>
+            <Card className="h-fit ">
+              <CardHeader className="items-center border-b p-4">
+                <img
+                  src={customPcImg}
+                  alt="custom pc"
+                  className="w-[250px] h-[250px]"
+                />
+                <CardTitle>Striker</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div>
+                  <div className="flex gap-4 items-start pb-4 last:mb-0 last:pb-0">
+                    <Cpu />
+                    <div className="space-y-1 text-left">
+                      <p className="text-sm font-medium leading-none">
+                        Platform
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Based on Intel Platform
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-start pb-4 last:mb-0 last:pb-0">
+                    <GalleryThumbnails />
+                    <div className="space-y-1 text-left">
+                      <p className="text-sm font-medium leading-none">
+                        Category
+                      </p>
+                      <p className="text-sm text-muted-foreground">Gaming</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-start pb-4 last:mb-0 last:pb-0">
+                    <Gamepad2 />
+                    <div className="space-y-1 text-left">
+                      <p className="text-sm font-medium leading-none">
+                        Recommended Uses
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Entry-mid level gaming
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-start pb-4 last:mb-0 last:pb-0">
+                    <IndianRupee />
+                    <div className="space-y-1 text-left">
+                      <p className="text-sm font-medium leading-none">Budget</p>
+                      <p className="text-sm text-muted-foreground">
+                        Between ₹150000
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </CardFooter>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button className="flex gap-2 mt-4 w-full">
+                      <span>Preview</span>
+                      <Eye />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[450px]">
+                    <Card className="overflow-hidden w-full">
+                      <CardHeader className="flex flex-row items-start bg-muted/50 p-5">
+                        <div className="grid gap-0.5">
+                          <CardTitle className="group flex items-center gap-2 text-lg">
+                            Specifications
+                          </CardTitle>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-6 text-sm">
+                        <div className="grid gap-3">
+                          <ul className="grid gap-3">
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Processor
+                              </span>
+                              <span>
+                                Intel i9 13900K 4.5Ghz 9 Core 18 Threads
+                              </span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Motherboard
+                              </span>
+                              <span>MSI Z650 Gaming Pro Motherboard</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Graphics
+                              </span>
+                              <span>
+                                Asus ROG Nvidia 4070 TI 12 GB Triple Fans
+                              </span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">RAM</span>
+                              <span>Gskill Ripjaws 16x2 DDR5 3600Ghz</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Memory
+                              </span>
+                              <span>2x 1TB WD Black NVM.e</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Cooler
+                              </span>
+                              <span>Nzxt Kraken 3x120mm Liquid Cooler</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Power Supply
+                              </span>
+                              <span>Corsair 1000w Gold - Fully Modular</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Cabinet
+                              </span>
+                              <span>Lian Li - Mid Tower</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </CardContent>
+                      <CardFooter className="flex justify-between items-center border-t bg-muted/50 px-6 py-3">
+                        <span className="text-xl font-bold text-primary">
+                          ₹150000
+                        </span>
+                        <Button>Add to Cart</Button>
+                      </CardFooter>
+                    </Card>
+                  </PopoverContent>
+                </Popover>
+              </CardContent>
+            </Card>
+            <Card className="h-fit ">
+              <CardHeader className="items-center border-b p-4">
+                <img
+                  src={customPcImg}
+                  alt="custom pc"
+                  className="w-[250px] h-[250px]"
+                />
+                <CardTitle>Striker</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div>
+                  <div className="flex gap-4 items-start pb-4 last:mb-0 last:pb-0">
+                    <Cpu />
+                    <div className="space-y-1 text-left">
+                      <p className="text-sm font-medium leading-none">
+                        Platform
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Based on Intel Platform
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-start pb-4 last:mb-0 last:pb-0">
+                    <GalleryThumbnails />
+                    <div className="space-y-1 text-left">
+                      <p className="text-sm font-medium leading-none">
+                        Category
+                      </p>
+                      <p className="text-sm text-muted-foreground">Gaming</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-start pb-4 last:mb-0 last:pb-0">
+                    <Gamepad2 />
+                    <div className="space-y-1 text-left">
+                      <p className="text-sm font-medium leading-none">
+                        Recommended Uses
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Entry-mid level gaming
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-start pb-4 last:mb-0 last:pb-0">
+                    <IndianRupee />
+                    <div className="space-y-1 text-left">
+                      <p className="text-sm font-medium leading-none">Budget</p>
+                      <p className="text-sm text-muted-foreground">
+                        Between ₹150000
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button className="flex gap-2 mt-4 w-full">
+                      <span>Preview</span>
+                      <Eye />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[450px]">
+                    <Card className="overflow-hidden w-full">
+                      <CardHeader className="flex flex-row items-start bg-muted/50 p-5">
+                        <div className="grid gap-0.5">
+                          <CardTitle className="group flex items-center gap-2 text-lg">
+                            Specifications
+                          </CardTitle>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-6 text-sm">
+                        <div className="grid gap-3">
+                          <ul className="grid gap-3">
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Processor
+                              </span>
+                              <span>
+                                Intel i9 13900K 4.5Ghz 9 Core 18 Threads
+                              </span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Motherboard
+                              </span>
+                              <span>MSI Z650 Gaming Pro Motherboard</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Graphics
+                              </span>
+                              <span>
+                                Asus ROG Nvidia 4070 TI 12 GB Triple Fans
+                              </span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">RAM</span>
+                              <span>Gskill Ripjaws 16x2 DDR5 3600Ghz</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Memory
+                              </span>
+                              <span>2x 1TB WD Black NVM.e</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Cooler
+                              </span>
+                              <span>Nzxt Kraken 3x120mm Liquid Cooler</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Power Supply
+                              </span>
+                              <span>Corsair 1000w Gold - Fully Modular</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Cabinet
+                              </span>
+                              <span>Lian Li - Mid Tower</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </CardContent>
+                      <CardFooter className="flex justify-between items-center border-t bg-muted/50 px-6 py-3">
+                        <span className="text-xl font-bold text-primary">
+                          ₹150000
+                        </span>
+                        <Button>Add to Cart</Button>
+                      </CardFooter>
+                    </Card>
+                  </PopoverContent>
+                </Popover>
+              </CardContent>
+            </Card>
+            <Card className="h-fit ">
+              <CardHeader className="items-center border-b p-4">
+                <img
+                  src={customPcImg}
+                  alt="custom pc"
+                  className="w-[250px] h-[250px]"
+                />
+                <CardTitle>Striker</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div>
+                  <div className="flex gap-4 items-start pb-4 last:mb-0 last:pb-0">
+                    <Cpu />
+                    <div className="space-y-1 text-left">
+                      <p className="text-sm font-medium leading-none">
+                        Platform
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Based on Intel Platform
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-start pb-4 last:mb-0 last:pb-0">
+                    <GalleryThumbnails />
+                    <div className="space-y-1 text-left">
+                      <p className="text-sm font-medium leading-none">
+                        Category
+                      </p>
+                      <p className="text-sm text-muted-foreground">Gaming</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-start pb-4 last:mb-0 last:pb-0">
+                    <Gamepad2 />
+                    <div className="space-y-1 text-left">
+                      <p className="text-sm font-medium leading-none">
+                        Recommended Uses
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Entry-mid level gaming
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-start pb-4 last:mb-0 last:pb-0">
+                    <IndianRupee />
+                    <div className="space-y-1 text-left">
+                      <p className="text-sm font-medium leading-none">Budget</p>
+                      <p className="text-sm text-muted-foreground">
+                        Between ₹150000
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button className="flex gap-2 mt-4 w-full">
+                      <span>Preview</span>
+                      <Eye />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[450px]">
+                    <Card className="overflow-hidden w-full">
+                      <CardHeader className="flex flex-row items-start bg-muted/50 p-5">
+                        <div className="grid gap-0.5">
+                          <CardTitle className="group flex items-center gap-2 text-lg">
+                            Specifications
+                          </CardTitle>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-6 text-sm">
+                        <div className="grid gap-3">
+                          <ul className="grid gap-3">
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Processor
+                              </span>
+                              <span>
+                                Intel i9 13900K 4.5Ghz 9 Core 18 Threads
+                              </span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Motherboard
+                              </span>
+                              <span>MSI Z650 Gaming Pro Motherboard</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Graphics
+                              </span>
+                              <span>
+                                Asus ROG Nvidia 4070 TI 12 GB Triple Fans
+                              </span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">RAM</span>
+                              <span>Gskill Ripjaws 16x2 DDR5 3600Ghz</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Memory
+                              </span>
+                              <span>2x 1TB WD Black NVM.e</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Cooler
+                              </span>
+                              <span>Nzxt Kraken 3x120mm Liquid Cooler</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Power Supply
+                              </span>
+                              <span>Corsair 1000w Gold - Fully Modular</span>
+                            </li>
+                            <li className="flex items-center justify-between border p-1 rounded">
+                              <span className="text-muted-foreground">
+                                Cabinet
+                              </span>
+                              <span>Lian Li - Mid Tower</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </CardContent>
+                      <CardFooter className="flex justify-between items-center border-t bg-muted/50 px-6 py-3">
+                        <span className="text-xl font-bold text-primary">
+                          ₹150000
+                        </span>
+                        <Button>Add to Cart</Button>
+                      </CardFooter>
+                    </Card>
+                  </PopoverContent>
+                </Popover>
+              </CardContent>
             </Card>
           </div>
         </div>
