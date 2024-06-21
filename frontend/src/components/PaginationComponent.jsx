@@ -8,14 +8,16 @@ import {
   PaginationPrevious,
 } from "./ui/pagination";
 
-const PaginationComponent = ({ currentPage, totalPages }) => {
+const PaginationComponent = ({ currentPage, totalPages, variant }) => {
   const renderPaginationItems = () => {
     const paginationItems = [];
 
     // Always add the first page
     paginationItems.push(
       <PaginationItem key={1}>
-        <PaginationLink href="#">1</PaginationLink>
+        <PaginationLink href="#" className="border border-muted-foreground">
+          1
+        </PaginationLink>
       </PaginationItem>
     );
 
@@ -36,7 +38,9 @@ const PaginationComponent = ({ currentPage, totalPages }) => {
       for (let i = startPage; i <= endPage; i++) {
         paginationItems.push(
           <PaginationItem key={i}>
-            <PaginationLink href="#">{i}</PaginationLink>
+            <PaginationLink href="#" className="border border-muted-foreground">
+              {i}
+            </PaginationLink>
           </PaginationItem>
         );
       }
@@ -53,7 +57,9 @@ const PaginationComponent = ({ currentPage, totalPages }) => {
       // Always add the last page
       paginationItems.push(
         <PaginationItem key={totalPages}>
-          <PaginationLink href="#">{totalPages}</PaginationLink>
+          <PaginationLink href="#" className="border border-muted-foreground">
+            {totalPages}
+          </PaginationLink>
         </PaginationItem>
       );
     } else {
@@ -61,7 +67,9 @@ const PaginationComponent = ({ currentPage, totalPages }) => {
       for (let i = 2; i <= totalPages; i++) {
         paginationItems.push(
           <PaginationItem key={i}>
-            <PaginationLink href="#">{i}</PaginationLink>
+            <PaginationLink href="#" className="border border-muted-foreground">
+              {i}
+            </PaginationLink>
           </PaginationItem>
         );
       }

@@ -18,6 +18,11 @@ import CheckoutScreen from './Screens/CheckoutScreen';
 import PlaceOrderScreen from './Screens/PlaceOrderScreen';
 import PrebuiltPCScreen from './Screens/PrebuiltPCScreen';
 import BuildCustomPCScreen from './Screens/BuildCustomPCScreen';
+import AdminRoute from './components/AdminRoute';
+import AdminAllProducts from './Screens/Admin/AdminAllProducts';
+import AdminAllOrders from './Screens/Admin/AdminAllOrders';
+import AdminAllUsers from './Screens/Admin/AdminAllUsers';
+import AdminCreateOffer from './Screens/Admin/AdminCreateOffer';
 
 const router = createBrowserRouter(createRoutesFromElements(
 <Route path='/' element={<App />}>
@@ -35,6 +40,13 @@ const router = createBrowserRouter(createRoutesFromElements(
     <Route path='/checkout' element={<CheckoutScreen />} />
     <Route path='/placeorder' element={<PlaceOrderScreen />} />
     <Route path='/buildcustompc' element={<BuildCustomPCScreen />} />
+  </Route>
+
+  <Route path='' element={<AdminRoute />}>
+    <Route path='/admin/all-products' element={<AdminAllProducts />} />
+    <Route path='/admin/all-orders' element={<AdminAllOrders />} />
+    <Route path='/admin/all-offers' element={<AdminCreateOffer />} />
+    <Route path='/admin/all-users' element={<AdminAllUsers />} />
   </Route>
 
 </Route>))

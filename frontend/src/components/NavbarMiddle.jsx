@@ -1,4 +1,4 @@
-import { CircleUser, Search, ShoppingCart } from "lucide-react";
+import { CircleUser, Search, ShoppingCart, Menu } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -12,11 +12,27 @@ import { Input } from "./ui/input";
 import Container from "./Container";
 import { Badge } from "./ui/badge";
 import { Link, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
+import { useLogoutMutation } from "../Features/usersApiSlice";
+import { logout } from "../Features/authSlice";
 
 export function NavbarMiddle() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const [logoutApiCall] = useLogoutMutation();
+
+  const logoutHandler = async (e) => {
+    e.preventDefault();
+    try {
+      await logoutApiCall().unwrap();
+      dispatch(logout());
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
   const [open, setOpen] = useState(false);
@@ -45,6 +61,41 @@ export function NavbarMiddle() {
                 />
               </div>
             </form>
+            {userInfo && userInfo.isAdmin && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button>
+                    <div className="flex gap-2">
+                      <Menu className="h-5 w-5 " />
+                      <span className="sr-only">Toggle admin</span>
+                      <span>Admin Pages</span>
+                    </div>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => navigate("/admin/all-products")}
+                  >
+                    Products
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => navigate("/admin/all-orders")}
+                  >
+                    Orders
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => navigate("/admin/all-offers")}
+                  >
+                    Offers
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => navigate("/admin/all-users")}
+                  >
+                    Users
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
             <div
               className="flex items-center gap-4 hover:cursor-pointer"
               onClick={() => navigate("/cart")}
@@ -83,7 +134,9 @@ export function NavbarMiddle() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Logout</DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => logoutHandler(e)}>
+                    Logout
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (

@@ -52,7 +52,7 @@ const AllProducts = () => {
     error: productsError,
   } = useGetProductsQuery({
     keyword,
-    pageNumber,
+    pageNumber: true,
   });
 
   const {
