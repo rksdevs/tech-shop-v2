@@ -29,10 +29,13 @@ import EditUser from './Screens/Admin/EditUser';
 
 const router = createBrowserRouter(createRoutesFromElements(
 <Route path='/' element={<App />}>
-  <Route path='/' index element={<HomeScreen/>} />
+  <Route path='/' index={true} element={<HomeScreen/>} />
   <Route path='/productCard' index element={<ProductCard />} />
   <Route path='/product/:id' element={<ProductScreen />} />
   <Route path='/allproducts' element={<AllProducts />} />
+  <Route path='/allproducts/search/:keyword' element={<AllProducts />} />
+  <Route path='/allproducts/page/:pageNumber' element={<AllProducts />} />
+  <Route path='/allproducts/search/:keyword/page/:pageNumber' element={<AllProducts />} />
   <Route path='/login' element={<Login />} />
   <Route path='/register' element={<Register />} />
   <Route path='/cart' element={<CartScreen />} />

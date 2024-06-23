@@ -16,8 +16,12 @@ import React, { useEffect } from "react";
 import { Card, CardContent } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Headset, ShieldCheck, Truck, IndianRupee } from "lucide-react";
-import { useGetProductsQuery } from "../Features/productApiSlice";
-import { useParams } from "react-router-dom";
+import {
+  useGetLatestProductsQuery,
+  useGetProductsQuery,
+  useGetTopProductsQuery,
+} from "../Features/productApiSlice";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Carousel,
   CarouselContent,
@@ -31,21 +35,20 @@ import { useSelector } from "react-redux";
 const HomeScreen = () => {
   const { theme } = useSelector((state) => state.theme);
   const { keyword, pageNumber } = useParams();
-  const {
-    data: products,
-    isLoading: productsLoading,
-    error: productsError,
-  } = useGetProductsQuery({
-    keyword,
-    pageNumber,
-  });
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (products?.products?.length) {
-      console.log(products?.products);
-      console.log(theme);
-    }
-  }, [products, theme]);
+  const {
+    data: topProducts,
+    isLoading: topProductsLoading,
+    error: topProductsError,
+  } = useGetTopProductsQuery();
+
+  const {
+    data: latestProducts,
+    isLoading: latestProductsLoading,
+    error: latestProductsError,
+  } = useGetLatestProductsQuery();
+
   return (
     <div className="flex w-full flex-col gap-8">
       <div className="banner flex bg-muted max-w-full max-h-[40vh] mt-4 py-4 rounded-md">
@@ -57,7 +60,7 @@ const HomeScreen = () => {
             Welcome to computermakers, a place where you can buy everything
             about computers.
           </p>
-          <Button>Shop Now</Button>
+          <Button onClick={() => navigate("/allproducts")}>Shop Now</Button>
         </div>
         <div className="image flex-1">
           <img src={bannerOne} alt="banner" className="w-full h-full" />
@@ -101,10 +104,10 @@ const HomeScreen = () => {
           </div>
         </div>
       </div>
-      <div className="featured flex flex-col gap-8">
+      <div className="top-rated flex flex-col gap-4">
         <div className="flex w-full justify-between items-center">
           <div>
-            <h3 className="text-[18px] font-[700]">Featured Products</h3>
+            <h3 className="text-[18px] font-[700]">Top Rated Products</h3>
           </div>
           <div>
             <Button>View All</Button>
@@ -112,7 +115,7 @@ const HomeScreen = () => {
         </div>
         <Carousel className="w-full">
           <CarouselContent className="-ml-1 h-[40vh] pt-5">
-            {products?.products?.map((product, index) => (
+            {topProducts?.map((product, index) => (
               <CarouselItem
                 key={index}
                 className="pl-1 md:basis-1/2 lg:basis-1/5"
@@ -134,10 +137,10 @@ const HomeScreen = () => {
           <CarouselNext className="right-[-15px]" />
         </Carousel>
       </div>
-      <div className="top-rated flex flex-col gap-8">
+      <div className="latest flex flex-col gap-6">
         <div className="flex w-full justify-between items-center">
           <div>
-            <h3 className="text-[18px] font-[700]">Top Rated Products</h3>
+            <h3 className="text-[18px] font-[700]">Latest Products</h3>
           </div>
           <div>
             <Button>View All</Button>
@@ -145,7 +148,7 @@ const HomeScreen = () => {
         </div>
         <Carousel className="w-full">
           <CarouselContent className="-ml-1 h-[40vh] pt-5">
-            {products?.products?.map((product, index) => (
+            {latestProducts?.map((product, index) => (
               <CarouselItem
                 key={index}
                 className="pl-1 md:basis-1/2 lg:basis-1/5"
@@ -197,7 +200,12 @@ const HomeScreen = () => {
               <p className="font-medium text-muted-foreground">
                 Choose from wide ranges of pre-built PCs.
               </p>
-              <Button className="min-w-[75px]">Check Now</Button>
+              <Button
+                className="min-w-[75px]"
+                onClick={() => navigate("/prebuilt-pc")}
+              >
+                Check Now
+              </Button>
             </div>
             <div className="image flex-1">
               <img
@@ -215,7 +223,12 @@ const HomeScreen = () => {
               <p className="font-medium text-muted-foreground">
                 Build your PC, with the help of our AI!
               </p>
-              <Button className="min-w-[7rem]">Try Now</Button>
+              <Button
+                className="min-w-[7rem]"
+                onClick={() => navigate("/buildcustompc")}
+              >
+                Try Now
+              </Button>
             </div>
             <div className="image flex-1">
               <img
@@ -227,7 +240,7 @@ const HomeScreen = () => {
           </div>
         </div>
       </div>
-      <div className="featured-brands flex flex-col gap-8">
+      <div className="featured-brands flex flex-col gap-6">
         <div className="flex w-full justify-between items-center">
           <div>
             <h3 className="text-[18px] font-[700]">Featured Brands</h3>

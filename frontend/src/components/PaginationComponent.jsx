@@ -1,4 +1,10 @@
 import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
+import {
   Pagination,
   PaginationContent,
   PaginationEllipsis,
@@ -7,15 +13,40 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "./ui/pagination";
+import { useEffect } from "react";
+import { Button } from "./ui/button";
 
-const PaginationComponent = ({ currentPage, totalPages, variant }) => {
+const PaginationComponent = ({
+  currentPage,
+  totalPages,
+  variant,
+  isAdmin = false,
+  keyword,
+}) => {
+  // const location = useLocation();
+  // const navigate = useNavigate();
+  // const [searchParams] = useSearchParams();
+  // const page = currentPage || searchParams.get("page") || 1;
+
+  // const handlePageChange = (page) => {
+  //   navigate();
+  // };
   const renderPaginationItems = () => {
     const paginationItems = [];
 
     // Always add the first page
     paginationItems.push(
       <PaginationItem key={1}>
-        <PaginationLink href="#" className="border border-muted-foreground">
+        <PaginationLink
+          href={
+            !isAdmin
+              ? keyword
+                ? `/search/${keyword}/page/${1}`
+                : `/allproducts/page/${1}`
+              : `/admin/productList/${1}`
+          }
+          className="border border-muted-foreground"
+        >
           1
         </PaginationLink>
       </PaginationItem>
@@ -38,7 +69,16 @@ const PaginationComponent = ({ currentPage, totalPages, variant }) => {
       for (let i = startPage; i <= endPage; i++) {
         paginationItems.push(
           <PaginationItem key={i}>
-            <PaginationLink href="#" className="border border-muted-foreground">
+            <PaginationLink
+              href={
+                !isAdmin
+                  ? keyword
+                    ? `/search/${keyword}/page/${i}`
+                    : `/allproducts/page/${i}`
+                  : `/admin/productList/${i}`
+              }
+              className="border border-muted-foreground"
+            >
               {i}
             </PaginationLink>
           </PaginationItem>
@@ -57,7 +97,16 @@ const PaginationComponent = ({ currentPage, totalPages, variant }) => {
       // Always add the last page
       paginationItems.push(
         <PaginationItem key={totalPages}>
-          <PaginationLink href="#" className="border border-muted-foreground">
+          <PaginationLink
+            href={
+              !isAdmin
+                ? keyword
+                  ? `/search/${keyword}/page/${totalPages}`
+                  : `/allproducts/page/${totalPages}`
+                : `/admin/productList/${totalPages}`
+            }
+            className="border border-muted-foreground"
+          >
             {totalPages}
           </PaginationLink>
         </PaginationItem>
@@ -67,7 +116,16 @@ const PaginationComponent = ({ currentPage, totalPages, variant }) => {
       for (let i = 2; i <= totalPages; i++) {
         paginationItems.push(
           <PaginationItem key={i}>
-            <PaginationLink href="#" className="border border-muted-foreground">
+            <PaginationLink
+              href={
+                !isAdmin
+                  ? keyword
+                    ? `/search/${keyword}/page/${i}`
+                    : `/allproducts/page/${i}`
+                  : `/admin/productList/${i}`
+              }
+              className="border border-muted-foreground"
+            >
               {i}
             </PaginationLink>
           </PaginationItem>
@@ -77,16 +135,31 @@ const PaginationComponent = ({ currentPage, totalPages, variant }) => {
 
     return paginationItems;
   };
-
   return (
     <Pagination>
       <PaginationContent>
         <PaginationItem key="prev">
-          <PaginationPrevious href="#" />
+          <PaginationPrevious
+            href={
+              !isAdmin
+                ? keyword
+                  ? `/search/${keyword}/page/${currentPage - 1}`
+                  : `/allproducts/page/${currentPage - 1}`
+                : `/admin/productList/${currentPage - 1}`
+            }
+          />
         </PaginationItem>
         {renderPaginationItems()}
         <PaginationItem key="next">
-          <PaginationNext href="#" />
+          <PaginationNext
+            href={
+              !isAdmin
+                ? keyword
+                  ? `/search/${keyword}/page/${currentPage + 1}`
+                  : `/allproducts/page/${currentPage + 1}`
+                : `/admin/productList/${currentPage + 1}`
+            }
+          />
         </PaginationItem>
       </PaginationContent>
     </Pagination>

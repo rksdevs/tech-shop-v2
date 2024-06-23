@@ -11,13 +11,13 @@ const getAllProducts = asyncHandler(async(req,res)=>{
     const keyword = req.query.keyword ? {name: {$regex : req.query.keyword, $options: 'i'}} : {};
 
     const count = await Product.countDocuments({...keyword});
-    let products;
-    if(req.query.pageNumber) {
-        products = await Product.find({...keyword}).limit(pageSize).skip(pageSize * (page -1));  
-    } else {
-        products = await Product.find();
-    }
-    // const products = await Product.find({...keyword}).limit(pageSize).skip(pageSize * (page -1));
+    // let products;
+    // if(req.query.pageNumber) {
+    //     products = await Product.find({...keyword}).limit(pageSize).skip(pageSize * (page -1));  
+    // } else {
+    //     products = await Product.find();
+    // }
+    const products = await Product.find({...keyword}).limit(pageSize).skip(pageSize * (page -1));
     if (products) {
         return res.json({products, page, pages: Math.ceil(count/pageSize)})
     } else {
@@ -185,7 +185,7 @@ const createProductReview = asyncHandler(async(req,res)=>{
 //@route GET /api/products
 //@access Public
 const getTopRatedProducts = asyncHandler(async(req,res)=>{
-    const products = await Product.find({}).sort({rating: -1}).limit(3)
+    const products = await Product.find({}).sort({rating: -1}).limit(20)
     if (products) {
         res.status(200).json(products)
     } else {
@@ -261,4 +261,69 @@ const getProductsByBrands = asyncHandler(async(req,res)=>{
     }
 })
 
-export {getAllProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductsByCategory, updateProductStock, createProductReview, getTopRatedProducts, getAllCategories, getAllBrands, getProductsByBrands}
+//@desc Fetch latest products
+//@route GET /api/products
+//@access Public
+const getLatestProducts = asyncHandler(async(req,res)=>{
+    const products = await Product.find({}).sort({createdAt: -1}).limit(20)
+    if (products) {
+        res.status(200).json(products)
+    } else {
+        res.status(404);
+        throw new Error(`Products not found`);
+    }
+
+})
+
+//@desc Fetch filtered products
+//@route POST /api/products
+//@access Public
+const getFilteredProducts = asyncHandler(async(req,res)=>{
+    const {brandFilter, categoryFilter, priceFilter} = req.body;
+    const pageSize = process.env.PAGINATION_LIMIT;
+    const page = Number(req.query.pageNumber) || 1;
+
+    const query = { $and: [] };
+    let minPrice = 0;
+    let maxPrice = priceFilter || 9999999
+
+if (brandFilter?.length > 0) {
+  query.$and.push({ brand: { $in: brandFilter } });
+}
+
+if (categoryFilter?.length > 0) {
+  query.$and.push({ category: { $in: categoryFilter } });
+}
+
+if (minPrice !== null && maxPrice !== null) {
+  query.$and.push({ price: { $gte: minPrice, $lte: maxPrice } });
+} else if (minPrice !== null) {
+  query.$and.push({ price: { $gte: minPrice } });
+} else if (maxPrice !== null) {
+  query.$and.push({ price: { $lte: maxPrice } });
+}
+
+if (query.$and.length === 0) {
+  // No filters applied, fetch all products
+  delete query.$and;
+}
+
+    const keyword = req.query.keyword ? {name: {$regex : req.query.keyword, $options: 'i'}} : {};
+
+    const count = await Product.countDocuments(query);
+    // let products;
+    // if(req.query.pageNumber) {
+    //     products = await Product.find({...keyword}).limit(pageSize).skip(pageSize * (page -1));  
+    // } else {
+    //     products = await Product.find();
+    // }
+    const products = await Product.find(query).limit(pageSize).skip(pageSize * (page -1));
+    if (products) {
+        return res.json({products, page, pages: Math.ceil(count/pageSize)})
+    } else {
+        res.status(404);
+        throw new Error ('Resources not found! Here is a pancakce..')
+    }
+})
+
+export {getAllProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductsByCategory, updateProductStock, createProductReview, getTopRatedProducts, getAllCategories, getAllBrands, getProductsByBrands, getLatestProducts, getFilteredProducts}

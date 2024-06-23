@@ -12,8 +12,14 @@ import {
 import { Input } from "./ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import Container from "./Container";
+import { useGetAllCategoriesQuery } from "../Features/productApiSlice";
 
 export function NavbarBottom() {
+  const {
+    data: allCategories,
+    isLoading: categoryLoading,
+    error: categoryError,
+  } = useGetAllCategoriesQuery();
   return (
     <div className="flex w-full flex-col">
       <header className="sticky top-0 flex h-12 items-center bg-primary border-b px-4 md:px-6">
@@ -29,10 +35,9 @@ export function NavbarBottom() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Category One</DropdownMenuLabel>
-              <DropdownMenuItem>Category Two</DropdownMenuItem>
-              <DropdownMenuItem>Category Three</DropdownMenuItem>
-              <DropdownMenuItem>Category Four</DropdownMenuItem>
+              {allCategories?.map((category, index) => (
+                <DropdownMenuItem key={index}>{category}</DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
 

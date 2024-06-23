@@ -20,16 +20,17 @@ import {
 import { Button } from "../components/ui/button";
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
-import { Settings, ListFilter } from "lucide-react";
+import { Settings, ListFilter, Filter } from "lucide-react";
 import { useParams } from "react-router-dom";
 import {
+  useFilteredProductListMutation,
   useGetAllBrandsQuery,
   useGetAllCategoriesQuery,
   useGetProductsQuery,
 } from "../Features/productApiSlice";
 import ProductCard from "../components/ProductCard";
 import { Checkbox } from "../components/ui/checkbox";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import PaginationComponent from "../components/PaginationComponent";
 import { BrandsComponent } from "../components/BrandsComponent";
 import { CategoriesComponent } from "../components/CategoriesComponent";
@@ -42,18 +43,29 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from "../components/ui/dropdown-menu";
+import { useSelector } from "react-redux";
 
 const AllProducts = () => {
   const { keyword, pageNumber } = useParams();
+  const { brandFilter, categoryFilter, priceFilter } = useSelector(
+    (state) => state.filter
+  );
   const {
     data: products,
     isLoading: productsLoading,
     error: productsError,
   } = useGetProductsQuery({
     keyword,
-    pageNumber: true,
+    pageNumber,
   });
+
+  const [filteredProductsData, setFilteredProductsData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [sortBy, setSortBy] = useState("");
 
   const {
     data: allCategories,
@@ -67,12 +79,54 @@ const AllProducts = () => {
     error: brandsError,
   } = useGetAllBrandsQuery();
 
+  const [
+    getFilteredProducts,
+    { isLoading: filterLoading, error: filterError },
+  ] = useFilteredProductListMutation();
+
+  const handleFilter = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await getFilteredProducts({
+        brandFilter,
+        categoryFilter,
+        priceFilter: priceFilter?.[0],
+      }).unwrap();
+      console.log(res);
+      setFilteredProductsData(res?.products);
+      setCurrentPage(res?.page);
+      setTotalPages(res?.pages);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (sortBy === "price") {
+      const sortedProducts = [...filteredProductsData]?.sort(
+        (a, b) => b.price - a.price
+      );
+      setFilteredProductsData(sortedProducts);
+    } else if (sortBy === "rating") {
+      const sortedProducts = [...filteredProductsData]?.sort(
+        (a, b) => b.rating - a.rating
+      );
+      setFilteredProductsData(sortedProducts);
+    } else if (sortBy === "latest") {
+      const sortedProducts = [...filteredProductsData]?.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setFilteredProductsData(sortedProducts);
+    }
+  }, [sortBy, filteredProductsData]);
+
   useEffect(() => {
     if (products?.products?.length) {
-      console.log(products?.pages);
-      console.log(allCategories);
+      setFilteredProductsData(products?.products);
+      setCurrentPage(products?.page);
+      setTotalPages(products?.pages);
     }
-  }, [products, allCategories]);
+  }, [products]);
   return (
     <div className="flex w-full flex-col gap-8">
       <Container className="flex flex-col gap-8">
@@ -93,16 +147,23 @@ const AllProducts = () => {
                   <span className="sr-only sm:not-sr-only">Sort</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuLabel>Panel Position</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuCheckboxItem checked>
-                  Price
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem>Ratings</DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem>
-                  Recent Items
-                </DropdownMenuCheckboxItem>
+                <DropdownMenuRadioGroup
+                  value={sortBy}
+                  onValueChange={setSortBy}
+                >
+                  <DropdownMenuRadioItem value="price">
+                    Price
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="rating">
+                    Ratings
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="latest">
+                    Newest
+                  </DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
             <Drawer>
@@ -153,6 +214,15 @@ const AllProducts = () => {
                   <legend className="-ml-1 px-1 text-sm font-medium">
                     Categories
                   </legend>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex justify-evenly"
+                    onClick={(e) => handleFilter(e)}
+                  >
+                    <span className="text-sm">Apply Filter</span>{" "}
+                    <Filter className="h-4 w-4" />
+                  </Button>
                   {allCategories?.length && (
                     <CategoriesComponent allCategories={allCategories} />
                   )}
@@ -161,6 +231,15 @@ const AllProducts = () => {
                   <legend className="-ml-1 px-1 text-sm font-medium">
                     Brands
                   </legend>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex justify-evenly"
+                    onClick={(e) => handleFilter(e)}
+                  >
+                    <span className="text-sm">Apply Filter</span>{" "}
+                    <Filter className="h-4 w-4" />
+                  </Button>
                   {allBrands?.length && (
                     <BrandsComponent allBrands={allBrands} />
                   )}
@@ -169,14 +248,21 @@ const AllProducts = () => {
                   <legend className="-ml-1 px-1 text-sm font-medium">
                     Price
                   </legend>
-                  <div className="grid gap-3">
-                    <PriceSlider />
-                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex justify-evenly"
+                    onClick={(e) => handleFilter(e)}
+                  >
+                    <span className="text-sm">Apply Filter</span>{" "}
+                    <Filter className="h-4 w-4" />
+                  </Button>
+                  <PriceSlider />
                 </fieldset>
               </form>
             </div>
-            <div className="relative grid grid-cols-4 grid-rows-4 gap-4 rounded-xl bg-muted/50 p-4 md:col-span-4">
-              {products?.products?.map((product, index) => (
+            <div className="relative grid grid-cols-4 grid-rows-4 gap-4 rounded-xl bg-muted/50 p-4 md:col-span-4 min-h-fit">
+              {filteredProductsData?.map((product, index) => (
                 <div className="p-1" key={index}>
                   <ProductCard
                     category={product?.category}
@@ -193,8 +279,8 @@ const AllProducts = () => {
               ))}
               <div className="col-span-4 mt-4 flex justify-center">
                 <PaginationComponent
-                  currentPage={products?.page}
-                  totalPages={products?.pages}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
                 />
               </div>
             </div>

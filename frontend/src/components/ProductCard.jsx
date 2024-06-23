@@ -44,7 +44,7 @@ const ProductCard = ({
             <h2
               className={`text-[16px] font-bold transition-colors group-hover:text-primary group-hover:underline ${nameClass}`}
             >
-              {name.length > 25 ? `${name.substring(0, 25)}...` : name}
+              {name?.length > 25 ? `${name?.substring(0, 25)}...` : name}
             </h2>
           </div>
           <div className={`flex items-center mt-2 ${sectionClass}`}>
@@ -62,7 +62,7 @@ const ProductCard = ({
               ({ratingCount})
             </div>
           </div>
-          <div className={`text-lg font-bold mt-2 ${priceClass}`}>${price}</div>
+          <div className={`text-lg font-bold mt-2 ${priceClass}`}>₹{price}</div>
         </CardContent>
       </Card>
     </Link>
