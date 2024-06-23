@@ -139,7 +139,7 @@ const AdminAllOrders = () => {
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() =>
-                navigate(`/admin/allproducts/editOrder/${info.getValue()}`)
+                navigate(`/admin/allorders/editOrder/${info.getValue()}`)
               }
             >
               Edit

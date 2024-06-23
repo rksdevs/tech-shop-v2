@@ -97,10 +97,8 @@ const productSchema = new mongoose.Schema({
         memorySlots: {type:String},
         expansionSlots: {type:String},
         storageInterface: {type:String},
-        formFactor: {type:String},
         ramType: {type:String},
         ramFormFactor: {type:String},
-        storageInterface: {type:String},
         wattage: {type:String},
         networkCardInterfaces: {type:String}
     }

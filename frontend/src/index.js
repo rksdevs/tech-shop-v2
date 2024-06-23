@@ -23,6 +23,9 @@ import AdminAllProducts from './Screens/Admin/AdminAllProducts';
 import AdminAllOrders from './Screens/Admin/AdminAllOrders';
 import AdminAllUsers from './Screens/Admin/AdminAllUsers';
 import AdminCreateOffer from './Screens/Admin/AdminCreateOffer';
+import EditProduct from './Screens/Admin/EditProduct';
+import EditOrder from './Screens/Admin/EditOrder';
+import EditUser from './Screens/Admin/EditUser';
 
 const router = createBrowserRouter(createRoutesFromElements(
 <Route path='/' element={<App />}>
@@ -47,6 +50,9 @@ const router = createBrowserRouter(createRoutesFromElements(
     <Route path='/admin/all-orders' element={<AdminAllOrders />} />
     <Route path='/admin/all-offers' element={<AdminCreateOffer />} />
     <Route path='/admin/all-users' element={<AdminAllUsers />} />
+    <Route path='/admin/allproducts/editProduct/:id' element={<EditProduct />} />
+    <Route path='/admin/allorders/editOrder/:id' element={<EditOrder />} />
+    <Route path='/admin/allusers/editUser/:id' element={<EditUser />} />
   </Route>
 
 </Route>))
