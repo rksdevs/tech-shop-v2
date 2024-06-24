@@ -21,13 +21,17 @@ import {
 } from "../components/ui/tabs";
 import { Label } from "../components/ui/label";
 import { useNavigate } from "react-router-dom";
-import { saveShippingAddress } from "../Features/cartSlice";
+import { clearCart, saveShippingAddress } from "../Features/cartSlice";
 import { Separator } from "../components/ui/separator";
+import { useCreateOrderMutation } from "../Features/orderApiSlice";
+import { useUpdateProductStockMutation } from "../Features/productApiSlice";
+import { useToast } from "../components/ui/use-toast";
 
 const CheckoutScreen = () => {
+  const { userInfo } = useSelector((state) => state.auth);
   const cart = useSelector((state) => state.cart);
-  const { shippingAddress } = cart;
-
+  const { shippingAddress, cartItems } = cart;
+  const [today, setToday] = useState(new Date(Date.now()).toDateString());
   const [address, setAddress] = useState(shippingAddress?.address || "");
   const [city, setCity] = useState(shippingAddress?.city || "");
   const [state, setState] = useState(shippingAddress?.state || "");
@@ -36,16 +40,51 @@ const CheckoutScreen = () => {
     shippingAddress?.postalCode || ""
   );
   const [country, setCountry] = useState(shippingAddress?.country || "");
+  const [activeTab, setActiveTab] = useState("shipping");
 
+  const { toast } = useToast();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [createOrder, { isLoading: orderLoading, error: orderError }] =
+    useCreateOrderMutation();
 
   const handleShippingAddress = (e) => {
     e.preventDefault();
+    setActiveTab("placeOrder");
     dispatch(
       saveShippingAddress({ address, city, postalCode, country, phone, state })
     );
   };
+
+  const changeTab = (tabname) => {
+    setActiveTab(tabname);
+  };
+
+  const handleCreateOrder = async () => {
+    try {
+      const res = await createOrder({
+        orderItems: cart.cartItems,
+        shippingAddress: cart.shippingAddress,
+        paymentMethod: cart?.paymentMethod,
+        itemsPrice: cart.itemsPrice,
+        shippingPrice: cart.shippingPrice,
+        taxPrice: cart.taxPrice,
+        totalPrice: cart.totalPrice,
+      }).unwrap();
+      dispatch(clearCart());
+      navigate(`/order/${res?._id}`);
+      toast({
+        title: "Order Created!",
+      });
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Failed to create order!",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="flex w-full flex-col gap-8">
       <Container className="flex flex-col gap-4">
@@ -57,7 +96,12 @@ const CheckoutScreen = () => {
             <h1 className="text-[28px] font-extrabold">Checkout</h1>
           </div>
           <div className="flex flex-col gap-2">
-            <Tabs defaultValue="shipping" className="w-full">
+            <Tabs
+              defaultValue="shipping"
+              className="w-full"
+              value={activeTab}
+              onValueChange={changeTab}
+            >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="shipping">Shipping Details</TabsTrigger>
                 <TabsTrigger value="placeOrder">Place Order</TabsTrigger>
@@ -137,16 +181,8 @@ const CheckoutScreen = () => {
                     <div className="grid gap-0.5">
                       <CardTitle className="group flex items-center gap-2 text-lg">
                         Cart Summary
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
-                        >
-                          <Copy className="h-3 w-3" />
-                          <span className="sr-only">Copy Order ID</span>
-                        </Button>
                       </CardTitle>
-                      <CardDescription>Date: November 23, 2023</CardDescription>
+                      <CardDescription>Date: {today}</CardDescription>
                     </div>
                     <div className="hidden ml-auto flex items-center gap-1">
                       <Button size="sm" variant="outline" className="h-8 gap-1">
@@ -161,18 +197,20 @@ const CheckoutScreen = () => {
                     <div className="grid gap-3">
                       <div className="font-semibold">Order Details</div>
                       <ul className="grid gap-3">
-                        <li className="flex items-center justify-between">
-                          <span className="text-muted-foreground">
-                            Glimmer Lamps x <span>2</span>
-                          </span>
-                          <span>$250.00</span>
-                        </li>
-                        <li className="flex items-center justify-between">
-                          <span className="text-muted-foreground">
-                            Aqua Filters x <span>1</span>
-                          </span>
-                          <span>$49.00</span>
-                        </li>
+                        {cartItems?.map((item, index) => (
+                          <li
+                            key={index}
+                            className="flex items-center justify-between"
+                          >
+                            <span className="text-muted-foreground">
+                              {item?.name.split(" ").length > 4
+                                ? item?.name.split(" ").slice(0, 4).join(" ")
+                                : item?.name}{" "}
+                              x <span>{item?.qty}</span>
+                            </span>
+                            <span>₹{item?.price}</span>
+                          </li>
+                        ))}
                       </ul>
                       <Separator className="my-2" />
                       <ul className="grid gap-3">
@@ -180,21 +218,21 @@ const CheckoutScreen = () => {
                           <span className="text-muted-foreground">
                             Subtotal
                           </span>
-                          <span>$299.00</span>
+                          <span>₹{cart?.itemsPrice}</span>
                         </li>
                         <li className="flex items-center justify-between">
                           <span className="text-muted-foreground">
                             Shipping
                           </span>
-                          <span>$5.00</span>
+                          <span>₹{cart?.shippingPrice}</span>
                         </li>
                         <li className="flex items-center justify-between">
                           <span className="text-muted-foreground">Tax</span>
-                          <span>$25.00</span>
+                          <span>₹{cart?.taxPrice}</span>
                         </li>
                         <li className="flex items-center justify-between font-semibold">
                           <span className="text-muted-foreground">Total</span>
-                          <span>$329.00</span>
+                          <span>₹{cart?.totalPrice}</span>
                         </li>
                       </ul>
                     </div>
@@ -204,12 +242,12 @@ const CheckoutScreen = () => {
                       <dl className="grid gap-3">
                         <div className="flex items-center justify-between">
                           <dt className="text-muted-foreground">Customer</dt>
-                          <dd>Liam Johnson</dd>
+                          <dd>{userInfo?.name}</dd>
                         </div>
                         <div className="flex items-center justify-between">
                           <dt className="text-muted-foreground">Email</dt>
                           <dd>
-                            <a href="mailto:">liam@acme.com</a>
+                            <a href="mailto:">{userInfo?.email}</a>
                           </dd>
                         </div>
                       </dl>
@@ -217,8 +255,7 @@ const CheckoutScreen = () => {
                   </CardContent>
                   <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
                     <div className="text-xs text-muted-foreground">
-                      Created{" "}
-                      <time dateTime="2023-11-23">November 23, 2023</time>
+                      Status: <time dateTime="2023-11-23">fresh order</time>
                     </div>
                   </CardFooter>
                 </Card>
@@ -228,26 +265,28 @@ const CheckoutScreen = () => {
                   <CardHeader className="flex flex-row items-start bg-muted/50">
                     <div className="grid gap-0.5">
                       <CardTitle className="group flex items-center gap-2 text-lg">
-                        Order Summary
+                        Items Summary
                       </CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent className="p-6 text-sm">
                     <div className="grid gap-3">
-                      <div className="font-semibold">Order Details</div>
+                      <div className="font-semibold">Item Details</div>
                       <ul className="grid gap-3">
-                        <li className="flex items-center justify-between">
-                          <span className="text-muted-foreground">
-                            Glimmer Lamps x <span>2</span>
-                          </span>
-                          <span>$250.00</span>
-                        </li>
-                        <li className="flex items-center justify-between">
-                          <span className="text-muted-foreground">
-                            Aqua Filters x <span>1</span>
-                          </span>
-                          <span>$49.00</span>
-                        </li>
+                        {cartItems?.map((item, index) => (
+                          <li
+                            key={index}
+                            className="flex items-center justify-between"
+                          >
+                            <span className="text-muted-foreground">
+                              {item?.name.split(" ").length > 5
+                                ? item?.name.split(" ").slice(0, 5).join(" ")
+                                : item?.name}{" "}
+                              x <span>{item?.qty}</span>
+                            </span>
+                            <span>₹{item?.price}</span>
+                          </li>
+                        ))}
                       </ul>
                       <Separator className="my-2" />
                       <ul className="grid gap-3">
@@ -255,29 +294,28 @@ const CheckoutScreen = () => {
                           <span className="text-muted-foreground">
                             Subtotal
                           </span>
-                          <span>$299.00</span>
+                          <span>₹{cart?.itemsPrice}</span>
                         </li>
                         <li className="flex items-center justify-between">
                           <span className="text-muted-foreground">
                             Shipping
                           </span>
-                          <span>$5.00</span>
+                          <span>₹{cart?.shippingPrice}</span>
                         </li>
                         <li className="flex items-center justify-between">
                           <span className="text-muted-foreground">Tax</span>
-                          <span>$25.00</span>
+                          <span>₹{cart?.taxPrice}</span>
                         </li>
                         <li className="flex items-center justify-between font-semibold">
                           <span className="text-muted-foreground">Total</span>
-                          <span>$329.00</span>
+                          <span>₹{cart?.totalPrice}</span>
                         </li>
                       </ul>
                     </div>
                   </CardContent>
                   <CardFooter className="flex absolute bottom-0 w-full flex-row items-center border-t bg-muted/50 px-6 py-3">
                     <div className="text-xs text-muted-foreground">
-                      Updated{" "}
-                      <time dateTime="2023-11-23">November 23, 2023</time>
+                      Created <time dateTime="2023-11-23">{today}</time>
                     </div>
                   </CardFooter>
                 </Card>
@@ -323,20 +361,29 @@ const CheckoutScreen = () => {
                       <dl className="grid gap-3">
                         <div className="flex items-center justify-between">
                           <dt className="text-muted-foreground">Customer</dt>
-                          <dd>Liam Johnson</dd>
+                          <dd>{userInfo?.name}</dd>
                         </div>
                         <div className="flex items-center justify-between">
                           <dt className="text-muted-foreground">Email</dt>
                           <dd>
-                            <a href="mailto:">liam@acme.com</a>
+                            <a href="mailto:">{userInfo?.email}</a>
                           </dd>
                         </div>
                       </dl>
                     </div>
                   </CardContent>
-                  <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
-                    <div className="text-xs text-muted-foreground">
-                      <Button>Confirm & Checkout</Button>
+                  <CardFooter className="flex flex-row items-center gap-6 border-t bg-muted/50 px-6 py-3">
+                    {/* <div className="text-xs text-muted-foreground"></div> */}
+                    <div className="text-xs text-muted-foreground flex gap-6">
+                      <Button
+                        variant="outline"
+                        onClick={() => setActiveTab("shipping")}
+                      >
+                        Edit Details
+                      </Button>
+                      <Button onClick={handleCreateOrder}>
+                        Confirm & Checkout
+                      </Button>
                     </div>
                   </CardFooter>
                 </Card>

@@ -23,6 +23,7 @@ import {
   IndianRupee,
   Star,
   ShoppingCart,
+  Pencil,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import {
@@ -163,6 +164,16 @@ const ProductScreen = () => {
                 className="w-[500px] h-auto"
               />
             </div>
+            {userInfo && userInfo?.isAdmin && (
+              <Badge
+                className="absolute left-[40rem]"
+                onClick={() =>
+                  navigate(`/admin/allproducts/editProduct/${productId}`)
+                }
+              >
+                <Pencil />
+              </Badge>
+            )}
             <div className="product-services flex justify-between">
               {/* <div className="flex items-start gap-4 text-left">
                 <Headset className="hidden h-6 w-6 sm:flex" />

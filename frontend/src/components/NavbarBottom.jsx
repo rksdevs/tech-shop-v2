@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CircleUser, Menu, Package2, Search } from "lucide-react";
 import { Button } from "./ui/button";
 import {
@@ -6,6 +6,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
@@ -13,13 +15,33 @@ import { Input } from "./ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import Container from "./Container";
 import { useGetAllCategoriesQuery } from "../Features/productApiSlice";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  clearAllCategoryFilters,
+  removeCategoryFilter,
+  setCategoryFilter,
+  setPrimaryCategoryFilter,
+} from "../Features/filterSlice";
 
 export function NavbarBottom() {
+  const { categoryFilter } = useSelector((state) => state.filter);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const {
     data: allCategories,
     isLoading: categoryLoading,
     error: categoryError,
   } = useGetAllCategoriesQuery();
+  const [categoryToFilter, setCategoryToFilter] = useState("");
+
+  const handleCategorySelect = (e) => {
+    dispatch(clearAllCategoryFilters());
+    dispatch(setCategoryFilter(e));
+    dispatch(setPrimaryCategoryFilter(true));
+    navigate("/allProducts");
+  };
+
   return (
     <div className="flex w-full flex-col">
       <header className="sticky top-0 flex h-12 items-center bg-primary border-b px-4 md:px-6">
@@ -36,20 +58,33 @@ export function NavbarBottom() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {allCategories?.map((category, index) => (
-                <DropdownMenuItem key={index}>{category}</DropdownMenuItem>
+                <DropdownMenuItem
+                  key={index}
+                  value={category}
+                  onClick={() => handleCategorySelect(category)}
+                  className="hover:cursor-pointer"
+                >
+                  {category}
+                </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
 
           <nav className="flex-1 hidden md:flex justify-center gap-5 lg:gap-6  font-medium">
             <Link
-              href="#"
+              to="/allproducts"
               className="text-background transition-colors hover:text-foreground"
             >
-              Accessories
+              All Products
             </Link>
             <Link
-              href="#"
+              to="/prebuilt-pc"
+              className="text-background transition-colors hover:text-foreground"
+            >
+              Pre-built PC
+            </Link>
+            <Link
+              to="/buildcustompc"
               className="text-background transition-colors hover:text-foreground"
             >
               Custom PC
@@ -57,18 +92,6 @@ export function NavbarBottom() {
           </nav>
 
           <div className="flex items-center gap-4 md:gap-2 lg:gap-4">
-            <Link
-              href="#"
-              className="text-background transition-colors hover:text-foreground"
-            >
-              Best Sellers
-            </Link>
-            <Link
-              href="#"
-              className="text-background transition-colors hover:text-foreground"
-            >
-              Offers
-            </Link>
             <Link
               href="#"
               className="text-background transition-colors hover:text-foreground"

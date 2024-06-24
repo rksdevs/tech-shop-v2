@@ -57,7 +57,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
             query: (order) => ({
                 url: `${PRODUCTS_URL}/updateProductStock`,
                 method: 'POST',
-                body: order
+                body: {...order}
             }),
             invalidatesTags: ['Product']
         }),

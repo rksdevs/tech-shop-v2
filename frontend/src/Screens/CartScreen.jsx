@@ -7,10 +7,11 @@ import {
   IndianRupee,
   Trash2,
   Share2,
+  CopyIcon,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "../components/ui/card";
 import ProductImg from "../components/assets/images/Designer.png";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "../components/ui/button";
 import {
   Select,
@@ -19,12 +20,48 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Input } from "../components/ui/input";
+import { removeFromCart } from "../Features/cartSlice";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../components/ui/dialog";
+import { Label } from "../components/ui/label";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useToast } from "../components/ui/use-toast";
 
 const CartScreen = () => {
   const { cartItems, totalPrice } = useSelector((state) => state.cart);
-  const [qty, setQty] = useState(0);
+  const dispatch = useDispatch();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleCopyLinkToClipboard = async (e, id) => {
+    e.preventDefault();
+    const baseUrl = window?.location?.href.split("/");
+    baseUrl.pop();
+    const text = `${baseUrl.join("/")}/product/${id}`;
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        toast({
+          title: "Link Copied!",
+        });
+      })
+      .catch((err) => {
+        toast({
+          title: "Something went wrong!",
+          variant: "destructive",
+        });
+      });
+  };
   return (
     <div className="flex w-full flex-col gap-8">
       <Container className="flex flex-col gap-4">
@@ -35,7 +72,7 @@ const CartScreen = () => {
           <div className="section-heading flex">
             <h1 className="text-[28px] font-extrabold">Your Cart</h1>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 min-h-[45vh]">
             <div className="cart-heading flex p-4 bg-muted rounded-lg gap-4 ">
               <div className="w-1/2 font-bold text-left">Product</div>
               <div className="flex flex-grow flex-1">
@@ -54,17 +91,25 @@ const CartScreen = () => {
                         <img
                           src={ProductImg}
                           alt="Product img"
-                          className="w-[250px]"
+                          className="w-[100px] h-[100px]"
                         />
                       </div>
-                      <div className="product-name flex flex-col">
+                      <Link
+                        className="product-name flex flex-col"
+                        to={`/product/${item?._id}`}
+                      >
                         <p className="px-8 font-bold text-muted-foreground">
                           {item?.category}
                         </p>
                         <h3 className="px-8 font-extrabold text-l">
-                          {item?.name}
+                          {item?.name.split(" ").length > 10
+                            ? `${item?.name
+                                .split(" ")
+                                .slice(0, 10)
+                                .join(" ")}...`
+                            : item?.name}{" "}
                         </h3>
-                      </div>
+                      </Link>
                     </CardHeader>
                     <CardContent className="flex flex-grow flex-1 justify-center items-center">
                       <div className="product-price w-full font-bold">
@@ -98,8 +143,54 @@ const CartScreen = () => {
                       </div>
                       <div className="product-actions w-full">
                         <div className="flex justify-center gap-4">
-                          <Trash2 />
-                          <Share2 />
+                          <Trash2
+                            className="hover:cursor-pointer hover:text-primary"
+                            onClick={() => dispatch(removeFromCart(item?._id))}
+                          />
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Share2 className="hover:cursor-pointer hover:text-primary" />
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-md">
+                              <DialogHeader>
+                                <DialogTitle>Share link</DialogTitle>
+                                <DialogDescription>
+                                  Anyone who has this link will be able to view
+                                  this.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="flex items-center space-x-2">
+                                <div className="grid flex-1 gap-2">
+                                  <Label htmlFor="link" className="sr-only">
+                                    Link
+                                  </Label>
+                                  <Input
+                                    id="link"
+                                    defaultValue={`http://${window.location?.host}/product/${item?._id}`}
+                                    readOnly
+                                  />
+                                </div>
+                                <Button
+                                  type="submit"
+                                  size="sm"
+                                  className="px-3"
+                                  onClick={(e) =>
+                                    handleCopyLinkToClipboard(e, item?._id)
+                                  }
+                                >
+                                  <span className="sr-only">Copy</span>
+                                  <CopyIcon className="h-4 w-4" />
+                                </Button>
+                              </div>
+                              <DialogFooter className="sm:justify-start">
+                                <DialogClose asChild>
+                                  <Button type="button" variant="secondary">
+                                    Close
+                                  </Button>
+                                </DialogClose>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
                         </div>
                       </div>
                     </CardContent>
@@ -165,8 +256,12 @@ const CartScreen = () => {
             <div className="text-l font-bold text-primary">₹ {totalPrice}</div>
           </div>
           <div className="flex gap-1">
-            <Button variant="outline">Continue Shopping</Button>
-            <Button>Proceed to Buy</Button>
+            <Button variant="outline" onClick={() => navigate("/allproducts")}>
+              Continue Shopping
+            </Button>
+            <Button onClick={() => navigate("/checkout")}>
+              Proceed to Buy
+            </Button>
           </div>
         </div>
 

@@ -46,13 +46,13 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from "../components/ui/dropdown-menu";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setPrimaryCategoryFilter } from "../Features/filterSlice";
 
 const AllProducts = () => {
   const { keyword, pageNumber } = useParams();
-  const { brandFilter, categoryFilter, priceFilter } = useSelector(
-    (state) => state.filter
-  );
+  const { brandFilter, categoryFilter, priceFilter, primaryCategoryFilter } =
+    useSelector((state) => state.filter);
   const {
     data: products,
     isLoading: productsLoading,
@@ -61,7 +61,7 @@ const AllProducts = () => {
     keyword,
     pageNumber,
   });
-
+  const dispatch = useDispatch();
   const [filteredProductsData, setFilteredProductsData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -86,6 +86,7 @@ const AllProducts = () => {
 
   const handleFilter = async (e) => {
     e.preventDefault();
+    dispatch(setPrimaryCategoryFilter(false));
     try {
       const res = await getFilteredProducts({
         brandFilter,
@@ -127,6 +128,25 @@ const AllProducts = () => {
       setTotalPages(products?.pages);
     }
   }, [products]);
+
+  useEffect(() => {
+    const fetchCategoryWiseProducts = async () => {
+      const res = await getFilteredProducts({
+        brandFilter,
+        categoryFilter,
+        priceFilter: priceFilter?.[0],
+      }).unwrap();
+      console.log(res);
+      setFilteredProductsData(res?.products);
+      setCurrentPage(res?.page);
+      setTotalPages(res?.pages);
+    };
+    if (primaryCategoryFilter) {
+      fetchCategoryWiseProducts();
+    }
+    //eslint(react-hooks/exhastive-depts)
+  }, [primaryCategoryFilter]);
+
   return (
     <div className="flex w-full flex-col gap-8">
       <Container className="flex flex-col gap-8">
@@ -135,7 +155,7 @@ const AllProducts = () => {
         </div>
         <div className="flex flex-col">
           <header className="sticky top-0 z-10 flex h-[53px] items-center gap-1 border-b bg-background md:justify-between lg:justify-between">
-            <h1 className="text-xl font-semibold">All Products</h1>
+            <h1 className="text-xl font-semibold">Products</h1>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button

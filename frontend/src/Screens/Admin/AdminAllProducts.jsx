@@ -21,11 +21,19 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
 import { Button } from "../../components/ui/button";
-import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ListFilter,
+  MoreHorizontal,
+  Settings,
+} from "lucide-react";
 import sampleImg from "../../components/assets/images/psu-1.png";
 import {
   Pagination,
@@ -36,29 +44,58 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "../../components/ui/pagination";
-import { useGetProductsQuery } from "../../Features/productApiSlice";
+import {
+  useFilteredProductListMutation,
+  useGetAllBrandsQuery,
+  useGetAllCategoriesQuery,
+  useGetProductsQuery,
+} from "../../Features/productApiSlice";
 import PaginationComponent from "../../components/PaginationComponent";
 import Container from "../../components/Container";
 import { Card, CardFooter } from "../../components/ui/card";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "../../components/ui/drawer";
+import { Label } from "../../components/ui/label";
+import { Input } from "../../components/ui/input";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  clearAllCategoryFilters,
+  setPrimaryCategoryFilter,
+} from "../../Features/filterSlice";
 
 const AdminAllProducts = () => {
   const { keyword, pageNumber } = useParams();
+  const { brandFilter, categoryFilter, priceFilter, primaryCategoryFilter } =
+    useSelector((state) => state.filter);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const dispatch = useDispatch();
+
+  const [filteredProductsData, setFilteredProductsData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [sortBy, setSortBy] = useState("");
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 8,
+  });
+
   const {
     data: allProducts,
     isLoading: productsLoading,
     error: productsError,
-  } = useGetProductsQuery({ keyword });
+  } = useGetProductsQuery({ keyword, pageNumber });
 
   const allProductsData = useMemo(() => {
     return allProducts?.products || [];
   }, [allProducts]);
 
-  const { toast } = useToast();
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 8,
-  });
-  const navigate = useNavigate();
   const columnHelper = createColumnHelper();
   /** @type import('@tanstack/react-table').columnDef<any>*/
   const columns = [
@@ -154,6 +191,11 @@ const AdminAllProducts = () => {
     //   });
     // }
   };
+
+  useEffect(() => {
+    dispatch(clearAllCategoryFilters());
+    console.log(allProducts);
+  }, []);
 
   return (
     <div className="flex w-full gap-6">

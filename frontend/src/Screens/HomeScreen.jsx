@@ -110,7 +110,7 @@ const HomeScreen = () => {
             <h3 className="text-[18px] font-[700]">Top Rated Products</h3>
           </div>
           <div>
-            <Button>View All</Button>
+            <Button onClick={() => navigate("/allproducts")}>View All</Button>
           </div>
         </div>
         <Carousel className="w-full">
@@ -143,7 +143,7 @@ const HomeScreen = () => {
             <h3 className="text-[18px] font-[700]">Latest Products</h3>
           </div>
           <div>
-            <Button>View All</Button>
+            <Button onClick={() => navigate("/allproducts")}>View All</Button>
           </div>
         </div>
         <Carousel className="w-full">
@@ -180,7 +180,12 @@ const HomeScreen = () => {
               <p className="font-medium text-muted-foreground">
                 Check out all Summer Days offers, limited stock check out now!
               </p>
-              <Button className="max-w-[10rem]">Shop Now</Button>
+              <Button
+                className="max-w-[10rem]"
+                onClick={() => navigate("/allproducts")}
+              >
+                Shop Now
+              </Button>
             </div>
           </div>
           <div className="flex-1">
@@ -246,7 +251,7 @@ const HomeScreen = () => {
             <h3 className="text-[18px] font-[700]">Featured Brands</h3>
           </div>
           <div>
-            <Button>View All</Button>
+            <Button onClick={() => navigate("/allproducts")}>View All</Button>
           </div>
         </div>
         <div

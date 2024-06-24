@@ -17,29 +17,53 @@ const razorpay = new Razorpay({
 //@access Private
 const addOrderItems = asyncHandler(async(req,res)=>{
     const { orderItems, shippingAddress, itemsPrice, taxPrice, shippingPrice, paymentMethod, totalPrice} = req.body;
-
-    if (orderItems && orderItems.length === 0) {
-        res.status(400);
-        throw new Error ('No order items');
-    } else {
-        const order = new Order({
-            orderItems: orderItems.map((x)=>({
-                ...x,
-                product: x._id,
-                _id: undefined
-            })),
-            user: req.user._id,
-            shippingAddress,
-            paymentMethod,
-            itemsPrice,
-            taxPrice,
-            shippingPrice,
-            totalPrice
-        })
-
-        const newOrder = await order.save();
-
-        res.status(201).json(newOrder);
+    //check and update the product stock
+    try {
+        for (const orderItem of orderItems) {
+            const product = await Product.findById(orderItem._id);
+            //if the stock is not sufficient to meet the order qty
+            if(product.countInStock < orderItem.qty) {
+                res.status(400);
+                throw new Error(`Insufficient products in stock, choose less quantity`)
+            }
+    
+            //update stock
+            if (product) {
+                product.countInStock -= orderItem.qty;
+                await product.save();
+            } else {
+                res.status(404);
+                throw new Error(`Product with ID ${orderItem.product} not found`);
+            }
+        }
+    
+        if (orderItems && orderItems.length === 0) {
+            res.status(400);
+            throw new Error ('No order items');
+        } else {
+            const order = new Order({
+                orderItems: orderItems.map((x)=>({
+                    ...x,
+                    product: x._id,
+                    _id: undefined
+                })),
+                user: req.user._id,
+                shippingAddress,
+                paymentMethod,
+                itemsPrice,
+                taxPrice,
+                shippingPrice,
+                totalPrice
+            })
+    
+            const newOrder = await order.save();
+    
+            res.status(201).json(newOrder);
+        }
+    } catch (error) {
+        console.log(error)
+        res.status(404);
+        throw new Error(`Unable to create order!`);
     }
 })
 

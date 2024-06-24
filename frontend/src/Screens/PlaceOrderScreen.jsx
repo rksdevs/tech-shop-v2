@@ -1,5 +1,5 @@
 import Container from "../components/Container";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Breadcrumbs } from "../components/Breadcrumbs";
 import {
   Headset,
@@ -26,7 +26,7 @@ import {
   CardFooter,
 } from "../components/ui/card";
 import ProductImg from "../components/assets/images/Designer.png";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../components/ui/button";
 import {
   Select,
@@ -64,70 +64,190 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../components/ui/collapsible";
+import {
+  useDeliverOrderMutation,
+  useGetOrderDetailsQuery,
+  useInitiateRazorpayPaymentMutation,
+  usePayOrderMutation,
+  useShipOrderMutation,
+} from "../Features/orderApiSlice";
+import { useUpdateProductStockMutation } from "../Features/productApiSlice";
+import { useToast } from "../components/ui/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../components/ui/dialog";
 
 const PlaceOrderScreen = () => {
-  // const { cartItems, totalPrice } = useSelector((state) => state.cart);
-  // const [qty, setQty] = useState(0);
-  const cart = useSelector((state) => state.cart);
-  const { shippingAddress } = cart;
-
-  const [address, setAddress] = useState(shippingAddress?.address || "");
-  const [city, setCity] = useState(shippingAddress?.city || "");
-  const [state, setState] = useState(shippingAddress?.state || "");
-  const [phone, setPhone] = useState(shippingAddress?.phone || "");
-  const [postalCode, setPostalCode] = useState(
-    shippingAddress?.postalCode || ""
-  );
-  const [country, setCountry] = useState(shippingAddress?.country || "");
-  const [open, setOpen] = useState(false);
-
+  const { userInfo } = useSelector((state) => state.auth);
+  const { id: orderId } = useParams();
+  const { toast } = useToast();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleShippingAddress = (e) => {
+  const [courierService, setCourierService] = useState("");
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const {
+    data: orderData,
+    isLoading,
+    error,
+    refetch,
+  } = useGetOrderDetailsQuery(orderId);
+
+  const [deliverOrder, { isLoading: loadingDeliver }] =
+    useDeliverOrderMutation();
+
+  const [shipOrder, { isLoading: loadingShipping }] = useShipOrderMutation();
+
+  const handleOrderDeliver = async (e) => {
     e.preventDefault();
-    dispatch(
-      saveShippingAddress({ address, city, postalCode, country, phone, state })
-    );
+    try {
+      await deliverOrder(orderId);
+      refetch();
+      toast({
+        title: "Marked order as Delivered",
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to mark as delivered",
+        description: error?.data?.message || error?.message,
+        variant: "destructive",
+      });
+    }
   };
 
-  const orderData = {
-    shippingAddress: {
-      address: "304, 4th Main Road",
-      city: "Bangalore",
-      postalCode: "123456",
-      phone: 1234566777,
-      state: "Karnataka",
-      country: "India",
-    },
-    _id: "667185f4642afe030fe97a8a",
-    user: {
-      _id: "659bd5899cab8a77cd636608",
-      name: "John Smith",
-      email: "john@gmail.com",
-    },
-    orderItems: [
-      {
-        name: "Amd Ryzen 3 3200G Processor With Radeon Rx Vega 8 Graphics (YD3200C5FHBOX)",
-        qty: 1,
-        image: "/images/sample.jpg",
-        price: 6250,
-        product: "6661c7a6f1321280a3808ce0",
-        _id: "667185f4642afe030fe97a8b",
-      },
-    ],
-    paymentMethod: "RazorPay",
-    itemsPrice: 6250,
-    taxPrice: 1125,
-    shippingPrice: 0,
-    totalPrice: 7375,
-    isPaid: false,
-    isDelivered: false,
-    isShipped: false,
-    createdAt: "2024-06-18T13:04:52.337Z",
-    updatedAt: "2024-06-18T13:04:52.337Z",
-    __v: 0,
+  const handleOrderShipped = async (e) => {
+    e.preventDefault();
+    try {
+      await shipOrder({ orderId, courierService, trackingNumber });
+      refetch();
+      toast({
+        title: "Marked order as Shipped",
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to mark as shipped",
+        description: error?.data?.message || error?.message,
+        variant: "destructive",
+      });
+    }
   };
+
+  const [
+    initiatePayment,
+    { isLoading: rzpPaymentLoading, error: rzpPaymentInitiateError },
+  ] = useInitiateRazorpayPaymentMutation();
+
+  const [confirmPayment] = usePayOrderMutation();
+
+  //rzp script for instance window
+  const loadScript = async (url) => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = url;
+      script.async = true;
+
+      script.onload = () => {
+        resolve(true);
+      };
+
+      script.onerror = () => {
+        resolve(false);
+      };
+
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleRzpPayment = async () => {
+    try {
+      if (process.env.REACT_APP_RAZORPAY_TEST_KEY) {
+        const paymentData = await initiatePayment({
+          amount: parseFloat(orderData.totalPrice).toFixed(2),
+          currency: "INR",
+          receipt: "test-receipt",
+          notes: {
+            user: userInfo.name,
+            email: userInfo.email,
+          },
+        }).unwrap();
+        console.log("payment data", paymentData);
+        // After receiving payment data from the server, proceed with Razorpay payment initialization
+        const res = await loadScript(
+          "https://checkout.razorpay.com/v1/checkout.js"
+        );
+
+        if (!res) {
+          toast.error(
+            "Razorpay SDK failed to load, please check your connection."
+          );
+          return;
+        }
+        const options = {
+          key: process.env.REACT_APP_RAZORPAY_TEST_KEY,
+          amount: paymentData.amount, // Amount in paise (100 paise = 1 INR)
+          currency: paymentData.currency,
+          name: "Computer Makers",
+          description: "Test Payment", // URL of your logo
+          order_id: paymentData.orderId, // Razorpay order ID
+          handler: async (response) => {
+            try {
+              const paymentConfirmation = await confirmPayment({
+                orderId,
+                details: {
+                  razorpayPaymentId: response.razorpay_payment_id,
+                  razorpayOrderId: response.razorpay_order_id,
+                  razorpaySignature: response.razorpay_signature,
+                },
+              });
+              toast({
+                title: "Payment Confirmed",
+              });
+              refetch();
+              console.log("Payment confirmation:", paymentConfirmation.data);
+              // Handle payment confirmation success
+            } catch (error) {
+              console.error("Error confirming payment:", error);
+              toast({
+                title: "Error Confirming payment",
+                description: error,
+                variant: "destructive",
+              });
+            }
+          },
+          prefill: {
+            name: "John Doe",
+            email: "john.doe@example.com",
+            contact: "+919876543210",
+          },
+          notes: {
+            // Additional notes, if any
+          },
+          theme: {
+            color: "#3399cc", // Theme color
+          },
+        };
+
+        // Initialize Razorpay payment
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+      }
+    } catch (error) {
+      toast.error("An error occurred while confirming your payment: ", error);
+    }
+  };
+
+  // useEffect(() => {
+  //   console.log(process.env.REACT_APP_RAZORPAY_TEST_KEY);
+  //   console.log(process.env.REACT_APP_RAZORPAY_TEST_SECRET);
+  // }, []);
   return (
     <div className="flex w-full flex-col gap-8">
       <Container className="flex flex-col gap-4">
@@ -140,86 +260,175 @@ const PlaceOrderScreen = () => {
           </div>
           <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
             <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-2">
-              <Card x-chunk="dashboard-01-chunk-0">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-l font-bold">
+              <Card
+                x-chunk="dashboard-01-chunk-0"
+                className="flex flex-col justify-between"
+              >
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 bg-muted/50">
+                  <CardTitle className="text-l font-bold ">
                     Shipping Details
                   </CardTitle>
                   <Truck className="h-6 w-6 text-muted-foreground" />
                 </CardHeader>
                 <CardContent className="text-left text-sm">
-                  <Separator className="my-4" />
-                  <ul className="grid gap-3">
+                  <ul className="grid gap-3 pt-6">
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">Address</span>
-                      <span>{shippingAddress?.address}</span>
+                      <span>{orderData?.shippingAddress?.address}</span>
                     </li>
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">City</span>
-                      <span>{shippingAddress?.city}</span>
+                      <span>{orderData?.shippingAddress?.city}</span>
                     </li>
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">State</span>
-                      <span>{shippingAddress?.state}</span>
+                      <span>{orderData?.shippingAddress?.state}</span>
                     </li>
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">Postal Code</span>
-                      <span>{shippingAddress?.postalCode}</span>
+                      <span>{orderData?.shippingAddress?.postalCode}</span>
                     </li>
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">Contact</span>
-                      <span>{shippingAddress?.phone}</span>
+                      <span>{orderData?.shippingAddress?.phone}</span>
                     </li>
                   </ul>
                 </CardContent>
+                <CardFooter className="flex w-full flex-row items-center border-t bg-muted/50 px-6 py-3">
+                  <div className="text-xs text-muted-foreground flex gap-8">
+                    Created{" "}
+                    <time dateTime="2023-11-23">
+                      {orderData?.createdAt.substring(0, 10)}
+                    </time>
+                  </div>
+                </CardFooter>
               </Card>
-              <Card x-chunk="dashboard-01-chunk-1">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-l font-bold">
+              <Card
+                x-chunk="dashboard-01-chunk-1"
+                className="relative flex flex-col justify-between"
+              >
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 bg-muted/50">
+                  <CardTitle className="text-l font-bold ">
                     Order Status
                   </CardTitle>
                   <Clock className="h-6 w-6 text-muted-foreground" />
                 </CardHeader>
                 <CardContent className="text-left text-sm">
-                  <Separator className="my-4" />
-                  <Collapsible
-                    open={open}
-                    onOpenChange={setOpen}
-                    className="w-[350px] space-y-2"
-                  >
-                    <div className="flex items-center justify-between space-x-4">
-                      <h4 className="text-sm font-semibold">
-                        Check Order Status
-                      </h4>
-                      <CollapsibleTrigger asChild>
-                        <Button size="sm">
-                          <ArrowDownUp className="h-4 w-4" />
-                          <span className="sr-only">Toggle</span>
-                        </Button>
-                      </CollapsibleTrigger>
-                    </div>
+                  <div className="flex flex-col gap-2 pt-6">
                     <div className="rounded-md border px-4 py-1 font-mono text-sm bg-muted shadow-sm flex gap-4">
                       <span className="font-bold text-muted-foreground">
                         Payment:
                       </span>{" "}
-                      <span className="pl-2">Pending</span>
+                      <span className="pl-2">
+                        {orderData?.isPaid ? "Paid" : "Pending"}
+                      </span>
                     </div>
-                    <CollapsibleContent className="space-y-2">
-                      <div className="rounded-md bg-muted border px-4 py-1 font-mono text-sm shadow-sm flex gap-4">
-                        <span className="font-bold text-muted-foreground">
-                          Shipping:
-                        </span>{" "}
-                        <span>Pending</span>
-                      </div>
-                      <div className="rounded-md bg-muted border px-4 py-1 font-mono text-sm shadow-sm flex gap-4">
-                        <span className="font-bold text-muted-foreground">
-                          Delivery:
-                        </span>{" "}
-                        <span>Pending</span>
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
+                    <div className="rounded-md bg-muted border px-4 py-1 font-mono text-sm shadow-sm flex gap-4">
+                      <span className="font-bold text-muted-foreground">
+                        Shipping:
+                      </span>{" "}
+                      <span>
+                        {orderData?.isShipped
+                          ? `${orderData?.trackingDetails?.courierService} : ${orderData?.trackingDetails?.trackingNumber} `
+                          : "Pending"}
+                      </span>
+                    </div>
+                    <div className="rounded-md bg-muted border px-4 py-1 font-mono text-sm shadow-sm flex gap-4">
+                      <span className="font-bold text-muted-foreground">
+                        Delivery:
+                      </span>{" "}
+                      <span>
+                        {orderData?.isDelivered
+                          ? `Delivered on: ${orderData.deliveredAt.substring(
+                              0,
+                              10
+                            )}`
+                          : "Pending"}
+                      </span>
+                    </div>
+                  </div>
                 </CardContent>
+                {userInfo && userInfo?.isAdmin && (
+                  <CardFooter className="flex w-full flex-row items-center border-t bg-muted/50 px-6 py-3">
+                    <div className="text-xs text-muted-foreground flex gap-8">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline">Mark as Shipped</Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Shipping Details</DialogTitle>
+                            <DialogDescription>
+                              Update shipping details below
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label
+                                htmlFor="courierService"
+                                className="text-right"
+                              >
+                                Courier
+                              </Label>
+                              <Input
+                                id="courierService"
+                                value={courierService}
+                                className="col-span-3"
+                                onChange={(e) =>
+                                  setCourierService(e.target.value)
+                                }
+                                placeholder="Enter courier name"
+                              />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label
+                                htmlFor="trackingNumber"
+                                className="text-right"
+                              >
+                                Tracking No
+                              </Label>
+                              <Input
+                                id="trackingNumber"
+                                value={trackingNumber}
+                                className="col-span-3"
+                                onChange={(e) =>
+                                  setTrackingNumber(e.target.value)
+                                }
+                                placeholder="Enter tracking no"
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button
+                              type="submit"
+                              onClick={(e) => handleOrderShipped(e)}
+                            >
+                              Shipped
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline">Mark as Delivered</Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Mark as Delivered</DialogTitle>
+                          </DialogHeader>
+                          <DialogFooter>
+                            <Button
+                              type="submit"
+                              onClick={(e) => handleOrderDeliver(e)}
+                            >
+                              Delivered
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </CardFooter>
+                )}
               </Card>
             </div>
             <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
@@ -305,7 +514,9 @@ const PlaceOrderScreen = () => {
                       <span>₹{orderData?.totalPrice}</span>
                     </li>
                   </ul>
-                  <Button>Pay Now</Button>
+                  {!orderData?.isPaid && (
+                    <Button onClick={handleRzpPayment}>Pay Now</Button>
+                  )}
                 </CardContent>
               </Card>
             </div>

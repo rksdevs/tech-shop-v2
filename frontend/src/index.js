@@ -44,7 +44,7 @@ const router = createBrowserRouter(createRoutesFromElements(
   <Route path='' element={<PrivateRoute />}>
     <Route path='/myaccount' element={<AccountSettings />} />
     <Route path='/checkout' element={<CheckoutScreen />} />
-    <Route path='/placeorder' element={<PlaceOrderScreen />} />
+    <Route path='/order/:id' element={<PlaceOrderScreen />} />
     <Route path='/buildcustompc' element={<BuildCustomPCScreen />} />
   </Route>
 
@@ -54,7 +54,7 @@ const router = createBrowserRouter(createRoutesFromElements(
     <Route path='/admin/all-offers' element={<AdminCreateOffer />} />
     <Route path='/admin/all-users' element={<AdminAllUsers />} />
     <Route path='/admin/allproducts/editProduct/:id' element={<EditProduct />} />
-    <Route path='/admin/allorders/editOrder/:id' element={<EditOrder />} />
+    <Route path='/admin/allorders/editOrder/:id' element={<PlaceOrderScreen />} />
     <Route path='/admin/allusers/editUser/:id' element={<EditUser />} />
   </Route>
 

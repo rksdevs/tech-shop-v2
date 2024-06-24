@@ -112,12 +112,21 @@ const deleteProduct = asyncHandler(async(req,res)=>{
 //@access Public
 const getProductsByCategory = asyncHandler(async(req,res)=>{
     const categoryToSearch = req.params.category;
-    const product = await Product.find({category: categoryToSearch})
-    if(product.length > 0) {
-        res.status(200).json(product);
+    const pageSize = process.env.PAGINATION_LIMIT;
+    const page = Number(req.query.pageNumber) || 1;
+    const count = await Product.countDocuments({category: categoryToSearch});
+    // let products;
+    // if(req.query.pageNumber) {
+    //     products = await Product.find({...keyword}).limit(pageSize).skip(pageSize * (page -1));  
+    // } else {
+    //     products = await Product.find();
+    // }
+    const products = await Product.find({category: categoryToSearch}).limit(pageSize).skip(pageSize * (page -1));
+    if (products) {
+        return res.json({products, page, pages: Math.ceil(count/pageSize)})
     } else {
         res.status(404);
-        throw new Error("Category not found! Here is a pancake..")
+        throw new Error ("Category not found! Here is a pancake..")
     }
 })
 
