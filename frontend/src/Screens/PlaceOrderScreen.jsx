@@ -1,5 +1,5 @@
 import Container from "../components/Container";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { Breadcrumbs } from "../components/Breadcrumbs";
 import {
   Headset,
@@ -89,6 +89,7 @@ const PlaceOrderScreen = () => {
   const { toast } = useToast();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [courierService, setCourierService] = useState("");
   const [trackingNumber, setTrackingNumber] = useState("");
@@ -255,8 +256,18 @@ const PlaceOrderScreen = () => {
           <Breadcrumbs />
         </div>
         <div className="flex flex-col">
-          <div className="section-heading flex justify-center">
-            <h1 className="text-[28px] font-extrabold">Place Order</h1>
+          <div
+            className={`section-heading flex ${
+              location?.pathname?.includes("editOrder")
+                ? "justify-start pl-8"
+                : "justify-center"
+            }`}
+          >
+            <h1 className={`text-[28px] font-extrabold`}>
+              {location?.pathname?.includes("editOrder")
+                ? `Edit Order: ${orderData?._id}`
+                : "Place Order"}
+            </h1>
           </div>
           <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
             <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-2">
@@ -305,7 +316,9 @@ const PlaceOrderScreen = () => {
               </Card>
               <Card
                 x-chunk="dashboard-01-chunk-1"
-                className="relative flex flex-col justify-between"
+                className={`relative flex flex-col ${
+                  userInfo?.isAdmin ? "justify-between" : "justify-between"
+                }`}
               >
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 bg-muted/50">
                   <CardTitle className="text-l font-bold ">
@@ -348,84 +361,103 @@ const PlaceOrderScreen = () => {
                     </div>
                   </div>
                 </CardContent>
-                {userInfo && userInfo?.isAdmin && (
+                {userInfo && userInfo?.isAdmin ? (
                   <CardFooter className="flex w-full flex-row items-center border-t bg-muted/50 px-6 py-3">
                     <div className="text-xs text-muted-foreground flex gap-8">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline">Mark as Shipped</Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Shipping Details</DialogTitle>
-                            <DialogDescription>
-                              Update shipping details below
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label
-                                htmlFor="courierService"
-                                className="text-right"
-                              >
-                                Courier
-                              </Label>
-                              <Input
-                                id="courierService"
-                                value={courierService}
-                                className="col-span-3"
-                                onChange={(e) =>
-                                  setCourierService(e.target.value)
-                                }
-                                placeholder="Enter courier name"
-                              />
+                      {!orderData?.isShipped && (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline">Mark as Shipped</Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                              <DialogTitle>Shipping Details</DialogTitle>
+                              <DialogDescription>
+                                Update shipping details below
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                              <div className="grid grid-cols-4 items-center gap-4">
+                                <Label
+                                  htmlFor="courierService"
+                                  className="text-right"
+                                >
+                                  Courier
+                                </Label>
+                                <Input
+                                  id="courierService"
+                                  value={courierService}
+                                  className="col-span-3"
+                                  onChange={(e) =>
+                                    setCourierService(e.target.value)
+                                  }
+                                  placeholder="Enter courier name"
+                                />
+                              </div>
+                              <div className="grid grid-cols-4 items-center gap-4">
+                                <Label
+                                  htmlFor="trackingNumber"
+                                  className="text-right"
+                                >
+                                  Tracking No
+                                </Label>
+                                <Input
+                                  id="trackingNumber"
+                                  value={trackingNumber}
+                                  className="col-span-3"
+                                  onChange={(e) =>
+                                    setTrackingNumber(e.target.value)
+                                  }
+                                  placeholder="Enter tracking no"
+                                />
+                              </div>
                             </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label
-                                htmlFor="trackingNumber"
-                                className="text-right"
+                            <DialogFooter>
+                              <Button
+                                type="submit"
+                                onClick={(e) => handleOrderShipped(e)}
                               >
-                                Tracking No
-                              </Label>
-                              <Input
-                                id="trackingNumber"
-                                value={trackingNumber}
-                                className="col-span-3"
-                                onChange={(e) =>
-                                  setTrackingNumber(e.target.value)
-                                }
-                                placeholder="Enter tracking no"
-                              />
+                                Shipped
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                      {!orderData?.isDelivered && (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline">Mark as Delivered</Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                              <DialogTitle>Delivery</DialogTitle>
+                              <DialogDescription>
+                                Update order to delivered
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                              <p>Mark as delivered below</p>
                             </div>
-                          </div>
-                          <DialogFooter>
-                            <Button
-                              type="submit"
-                              onClick={(e) => handleOrderShipped(e)}
-                            >
-                              Shipped
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline">Mark as Delivered</Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Mark as Delivered</DialogTitle>
-                          </DialogHeader>
-                          <DialogFooter>
-                            <Button
-                              type="submit"
-                              onClick={(e) => handleOrderDeliver(e)}
-                            >
-                              Delivered
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
+                            <DialogFooter>
+                              <Button
+                                type="submit"
+                                onClick={(e) => handleOrderDeliver(e)}
+                              >
+                                Delivered
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                      {orderData?.isDelivered && orderData?.isShipped && (
+                        <p>Shipment Status</p>
+                      )}
+                    </div>
+                  </CardFooter>
+                ) : (
+                  <CardFooter className="flex w-full flex-row items-center border-t bg-muted/50 px-6 py-3">
+                    <div className="text-xs text-muted-foreground flex gap-8">
+                      <p>Shipment Status</p>
                     </div>
                   </CardFooter>
                 )}

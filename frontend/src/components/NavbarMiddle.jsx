@@ -28,6 +28,7 @@ export function NavbarMiddle() {
     try {
       await logoutApiCall().unwrap();
       dispatch(logout());
+      setOpen(false);
       navigate("/login");
     } catch (error) {
       console.log(error);

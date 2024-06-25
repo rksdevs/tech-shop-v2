@@ -4,6 +4,7 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
+  CardFooter,
 } from "../../components/ui/card";
 import Container from "../../components/Container";
 import {
@@ -17,6 +18,7 @@ import {
   LogOut,
   ScrollText,
   ShoppingCart,
+  Trash2,
 } from "lucide-react";
 import orderOne from "../../components/assets/images/orders-2.jpg";
 import addressOne from "../../components/assets/images/address-1.jpg";
@@ -25,14 +27,39 @@ import { Label } from "../../components/ui/label";
 import { Input } from "../../components/ui/input";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { useGetUserDetailsQuery } from "../../Features/usersApiSlice";
+import {
+  useDeleteUserMutation,
+  useGetUserDetailsQuery,
+} from "../../Features/usersApiSlice";
 const EditUser = () => {
+  const { userInfo } = useSelector((state) => state.auth);
   const { id: userId } = useParams();
   const {
-    data: userInfo,
+    data: selectedUser,
     isLoading: userLoading,
     error: userError,
   } = useGetUserDetailsQuery(userId);
+
+  const [deleteUser, { isLoading: deleteUserLoading, error: deleteUserError }] =
+    useDeleteUserMutation();
+
+  // const handleDeleteUser = async (e, brandId) => {
+  //   e.preventDefault();
+  //   try {
+  //     await deleteUser(brandId).unwrap();
+  //     refetch();
+  //     toast({
+  //       title: "User deleted!",
+  //     });
+  //   } catch (error) {
+  //     toast({
+  //       title: "Error deleting brand!",
+  //       description: error?.message || error?.data?.message,
+  //       variant: "destructive",
+  //     });
+  //   }
+  // };
+
   return (
     <div className="flex w-full flex-col gap-8 h-[63vh] items-start justify-start">
       <div className="flex flex-col justify-start items-center pl-4">
@@ -61,50 +88,44 @@ const EditUser = () => {
                         <Label htmlFor="name">Name</Label>
                         <Input
                           id="name"
-                          placeholder={userInfo?.name}
-                          required
+                          placeholder={selectedUser?.name}
+                          disabled
                         />
                       </div>
                       <div className="grid gap-2">
                         <Label htmlFor="last-name">Email</Label>
                         <Input
                           id="last-name"
-                          placeholder={userInfo?.email}
+                          placeholder={selectedUser?.email}
                           disabled
                         />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="grid gap-2">
-                        <Label htmlFor="password">Password</Label>
-                        <Input
-                          id="password"
-                          type="password"
-                          placeholder="Enter Password"
-                          required
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="confirmPassword">
-                          Confirm Password
-                        </Label>
-                        <Input
-                          id="confirmPassword"
-                          placeholder="Confirm Password"
-                          type="password"
-                          required
-                        />
-                      </div>
+                      {userInfo &&
+                        userInfo?.isAdmin &&
+                        userInfo?.email !== selectedUser?.email && (
+                          <div className="flex items-center">
+                            <Button
+                              size="sm"
+                              className="flex gap-2 items-center justify-center"
+                            >
+                              <Trash2 className="w-4 h-4" /> Delete User
+                            </Button>
+                          </div>
+                        )}
                     </div>
-                    <Button type="submit" className="w-1/3">
-                      Update
-                    </Button>
+                    {userInfo?.email === selectedUser?.email && (
+                      <Button type="submit" className="w-1/3">
+                        Update
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
             </div>
             <div className="grid md:col-span-1">
-              <Card className="h-full">
+              <Card className="h-full flex flex-col justify-between">
                 <CardHeader className="items-center">
                   <Avatar className="h-[150px] w-[150px] mb-4">
                     <AvatarImage
@@ -113,8 +134,8 @@ const EditUser = () => {
                     />
                     <AvatarFallback>CN</AvatarFallback>
                   </Avatar>
-                  <CardTitle>{userInfo?.name}</CardTitle>
-                  <CardDescription>{userInfo?.email}</CardDescription>
+                  <CardTitle>{selectedUser?.name}</CardTitle>
+                  <CardDescription>{selectedUser?.email}</CardDescription>
                 </CardHeader>
               </Card>
             </div>

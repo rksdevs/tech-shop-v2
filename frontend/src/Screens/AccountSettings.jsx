@@ -19,12 +19,87 @@ import addressOne from "../components/assets/images/address-1.jpg";
 import { Button } from "../components/ui/button";
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import {
+  useLogoutMutation,
+  useUpdateUserMutation,
+  useUpdateUserProfileMutation,
+} from "../Features/usersApiSlice";
+import { logout, setCredentials } from "../Features/authSlice";
+import { useEffect, useState } from "react";
+import { useToast } from "../components/ui/use-toast";
 
 const AccountSettings = () => {
   const { userInfo } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { toast } = useToast();
+  const [logoutUser] = useLogoutMutation();
+  const [
+    updateUserProfile,
+    { isLoading: updateUserLoading, error: updateUserError },
+  ] = useUpdateUserProfileMutation();
+
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const handleUserUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      if (password !== "") {
+        if (confirmPassword === password) {
+          const res = await updateUserProfile({
+            name,
+            email: userInfo?.email,
+            password,
+          }).unwrap();
+          dispatch(setCredentials({ ...res }));
+          toast({
+            title: "Profile updated successfully!",
+          });
+        } else {
+          toast({
+            title: "Confirm Password doesn't match!",
+            variant: "destructive",
+          });
+        }
+      } else {
+        toast({
+          title: "Password can not be empty!",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Failed to update profile!",
+        description: error,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser().unwrap;
+      dispatch(logout());
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (userInfo?.name) {
+      setName(userInfo?.name);
+      setPassword("");
+    }
+  }, [userInfo]);
+
   return (
-    <div className="flex w-full flex-col gap-8">
+    <div className="flex w-full flex-col gap-8 h-[63vh]">
       <Container className="flex flex-col gap-8">
         <div className="grid gap-4 overflow-auto py-4 md:grid-cols-4 lg:grid-cols-4">
           <div className="side-bar grid md:col-span-1">
@@ -42,7 +117,7 @@ const AccountSettings = () => {
               </CardHeader>
               <CardContent className="pt-6">
                 <ul className="flex flex-col gap-4">
-                  <li className="flex gap-4">
+                  {/* <li className="flex gap-4">
                     {" "}
                     <span>
                       {" "}
@@ -57,8 +132,11 @@ const AccountSettings = () => {
                       <Home />
                     </span>{" "}
                     <span>Addresses</span>
-                  </li>
-                  <li className="flex gap-4">
+                  </li> */}
+                  <li
+                    className="flex gap-4 hover:cursor-pointer"
+                    onClick={() => navigate("/myorders")}
+                  >
                     {" "}
                     <span>
                       {" "}
@@ -66,7 +144,10 @@ const AccountSettings = () => {
                     </span>{" "}
                     <span>Orders</span>
                   </li>
-                  <li className="flex gap-4">
+                  <li
+                    className="flex gap-4 hover:cursor-pointer"
+                    onClick={() => navigate("/cart")}
+                  >
                     {" "}
                     <span>
                       {" "}
@@ -74,7 +155,10 @@ const AccountSettings = () => {
                     </span>{" "}
                     <span>Cart</span>
                   </li>
-                  <li className="flex gap-4">
+                  <li
+                    className="flex gap-4 hover:cursor-pointer"
+                    onClick={handleLogout}
+                  >
                     {" "}
                     <span>
                       {" "}
@@ -87,7 +171,7 @@ const AccountSettings = () => {
             </Card>
           </div>
           <div className="content grid md:col-span-3 gap-8">
-            <div className="flex gap-2 max-h-[20vh]">
+            {/* <div className="flex gap-2 max-h-[20vh]">
               <div className="custom-pc-one flex-1 flex bg-muted rounded-md">
                 <div className="content flex flex-col gap-4 flex-1 items-center justify-center text-left">
                   <div className="flex flex-col p-3 gap-4">
@@ -128,8 +212,8 @@ const AccountSettings = () => {
                   />
                 </div>
               </div>
-            </div>
-            <div className="content flex flex-col gap-8 account-details">
+            </div> */}
+            <div className="content flex flex-col gap-6 account-details">
               <div className="flex justify-start items-center">
                 <h1 className="text-[28px] font-bold tracking-wide pb-1 border-b-4 border-primary">
                   Account Details
@@ -152,14 +236,16 @@ const AccountSettings = () => {
                             id="name"
                             placeholder={userInfo?.name}
                             required
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
                           />
                         </div>
                         <div className="grid gap-2">
                           <Label htmlFor="last-name">Email</Label>
                           <Input
                             id="last-name"
-                            placeholder={userInfo?.email}
-                            disabled
+                            value={userInfo?.email}
+                            readOnly
                           />
                         </div>
                       </div>
@@ -171,6 +257,8 @@ const AccountSettings = () => {
                             type="password"
                             placeholder="Enter Password"
                             required
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                           />
                         </div>
                         <div className="grid gap-2">
@@ -182,10 +270,16 @@ const AccountSettings = () => {
                             placeholder="Confirm Password"
                             type="password"
                             required
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
                           />
                         </div>
                       </div>
-                      <Button type="submit" className="w-1/3">
+                      <Button
+                        type="submit"
+                        className="w-1/3"
+                        onClick={(e) => handleUserUpdate(e)}
+                      >
                         Update
                       </Button>
                     </div>

@@ -36,6 +36,7 @@ import {
   ChevronRight,
   ListFilter,
   MoreHorizontal,
+  PlusCircle,
   Search,
   Settings,
 } from "lucide-react";
@@ -50,6 +51,8 @@ import {
   PaginationPrevious,
 } from "../../components/ui/pagination";
 import {
+  useCreateProductMutation,
+  useDeleteProductMutation,
   useFilteredProductListMutation,
   useGetAllBrandsQuery,
   useGetAllCategoriesQuery,
@@ -84,12 +87,19 @@ import {
 import { CaretSortIcon } from "@radix-ui/react-icons";
 
 const AdminAllProducts = () => {
-  // const { keyword, pageNumber } = useParams();
-  const { brandFilter, categoryFilter, priceFilter, primaryCategoryFilter } =
-    useSelector((state) => state.filter);
   const navigate = useNavigate();
   const { toast } = useToast();
   const dispatch = useDispatch();
+
+  const [
+    createSampleProduct,
+    { isLoading: newProductLoading, error: newProductError },
+  ] = useCreateProductMutation();
+
+  const [
+    deleteProduct,
+    { isLoading: deleteProductLoading, error: deleteProductError },
+  ] = useDeleteProductMutation();
 
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -100,6 +110,7 @@ const AdminAllProducts = () => {
     data: allProducts,
     isLoading: allProductsLoading,
     error: allProductsError,
+    refetch,
   } = useGetAllProductsAdminQuery();
 
   const allProductsData = useMemo(() => {
@@ -191,7 +202,7 @@ const AdminAllProducts = () => {
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={(e) => handleDeleteBrand(e, info.getValue())}
+              onClick={(e) => handleDeleteProduct(e, info.getValue())}
             >
               Delete
             </DropdownMenuItem>
@@ -221,22 +232,40 @@ const AdminAllProducts = () => {
     },
   });
 
-  const handleDeleteBrand = async (e, brandId) => {
+  const handleDeleteProduct = async (e, brandId) => {
     e.preventDefault();
-    // try {
-    //   await deleteBrand(brandId).unwrap();
-    //   refetch();
-    //   toast({
-    //     title: "Brand deleted!",
-    //   });
-    // } catch (error) {
-    //   console.log(error);
-    //   toast({
-    //     title: "Error deleting brand!",
-    //     description: error?.message || error?.data?.message,
-    //     variant: "destructive",
-    //   });
-    // }
+    try {
+      await deleteProduct(brandId).unwrap();
+      refetch();
+      toast({
+        title: "Product deleted!",
+      });
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Error deleting brand!",
+        description: error?.message || error?.data?.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAddNewProduct = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await createSampleProduct().unwrap();
+      refetch();
+      toast({
+        title: `${res?.name} added!`,
+      });
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Added new sample product",
+        description: error,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -244,17 +273,25 @@ const AdminAllProducts = () => {
       <Container className="flex flex-col gap-4">
         <div className="section-heading flex mt-4 justify-between">
           <h1 className="text-[28px] font-extrabold">All Products</h1>
-          <Search className="absolute right-[37rem] top-[10.18rem] w-[14px] h-[14px] text-muted-foreground" />
-          <Input
-            placeholder="Search products by name"
-            value={allProductstable.getColumn("name")?.getFilterValue() ?? ""}
-            onChange={(event) =>
-              allProductstable
-                .getColumn("name")
-                ?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm pl-8"
-          />
+          <div className="flex items-end gap-4">
+            <Search className="hidden absolute right-[37rem] top-[10.18rem] w-[14px] h-[14px] text-muted-foreground" />
+            <Input
+              placeholder="Search products by name"
+              value={allProductstable.getColumn("name")?.getFilterValue() ?? ""}
+              onChange={(event) =>
+                allProductstable
+                  .getColumn("name")
+                  ?.setFilterValue(event.target.value)
+              }
+              className="max-w-sm"
+            />
+            <Button className="gap-1" onClick={(e) => handleAddNewProduct(e)}>
+              <PlusCircle className="h-4 w-5" />
+              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                Add Product
+              </span>
+            </Button>
+          </div>
         </div>
         <Card>
           <Table>
@@ -326,22 +363,6 @@ const AdminAllProducts = () => {
                   {">>"}
                 </Button>
               </Pagination>
-
-              {/* <Label htmlFor="category">Category</Label> */}
-
-              {/* <select
-                value={allProductstable.getState().pagination.pageSize}
-                onChange={(e) => {
-                  allProductstable.setPageSize(Number(e.target.value));
-                }}
-              >
-                {[10, 20, 30, 40, 50].map((pageSize) => (
-                  <option key={pageSize} value={pageSize}>
-                    Show {pageSize}
-                  </option>
-                ))}
-              </select> */}
-              {/* {dataQuery.isFetching ? "Loading..." : null} */}
             </div>
             <div className="flex gap-8">
               <span className="flex items-center gap-1 ">

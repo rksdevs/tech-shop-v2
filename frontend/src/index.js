@@ -24,8 +24,8 @@ import AdminAllOrders from './Screens/Admin/AdminAllOrders';
 import AdminAllUsers from './Screens/Admin/AdminAllUsers';
 import AdminCreateOffer from './Screens/Admin/AdminCreateOffer';
 import EditProduct from './Screens/Admin/EditProduct';
-import EditOrder from './Screens/Admin/EditOrder';
 import EditUser from './Screens/Admin/EditUser';
+import MyOrders from './Screens/MyOrders';
 
 const router = createBrowserRouter(createRoutesFromElements(
 <Route path='/' element={<App />}>
@@ -43,6 +43,7 @@ const router = createBrowserRouter(createRoutesFromElements(
 
   <Route path='' element={<PrivateRoute />}>
     <Route path='/myaccount' element={<AccountSettings />} />
+    <Route path='/myorders' element={<MyOrders />} />
     <Route path='/checkout' element={<CheckoutScreen />} />
     <Route path='/order/:id' element={<PlaceOrderScreen />} />
     <Route path='/buildcustompc' element={<BuildCustomPCScreen />} />
@@ -56,7 +57,7 @@ const router = createBrowserRouter(createRoutesFromElements(
     <Route path='/admin/all-users' element={<AdminAllUsers />} />
     <Route path='/admin/allproducts/editProduct/:id' element={<EditProduct />} />
     <Route path='/admin/allorders/editOrder/:id' element={<PlaceOrderScreen />} />
-    <Route path='/admin/allusers/editUser/:id' element={<EditUser />} />
+    {/* <Route path='/admin/allusers/editUser/:id' element={<EditUser />} /> */}
   </Route>
 
 </Route>))

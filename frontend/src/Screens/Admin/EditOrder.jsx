@@ -416,7 +416,7 @@ function EditOrder() {
                 <Button variant="outline" size="sm">
                   Discard
                 </Button>
-                <Button size="sm">Save Product</Button>
+                <Button size="sm">Save Order</Button>
               </div>
             </div>
           </main>

@@ -53,9 +53,9 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 import { CaretSortIcon } from "@radix-ui/react-icons";
+import { useDispatch } from "react-redux";
 
 const AdminAllOrders = () => {
-  const { keyword, pageNumber } = useParams();
   const {
     data: allOrders,
     isLoading: productsLoading,
@@ -66,6 +66,9 @@ const AdminAllOrders = () => {
     return allOrders || [];
   }, [allOrders]);
 
+  // const [] = useDele
+
+  const dispatch = useDispatch();
   const { toast } = useToast();
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -231,11 +234,6 @@ const AdminAllOrders = () => {
             >
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={(e) => handleDeleteBrand(e, info.getValue())}
-            >
-              Delete
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -260,24 +258,6 @@ const AdminAllOrders = () => {
       columnFilters,
     },
   });
-
-  const handleDeleteBrand = async (e, brandId) => {
-    e.preventDefault();
-    // try {
-    //   await deleteBrand(brandId).unwrap();
-    //   refetch();
-    //   toast({
-    //     title: "Brand deleted!",
-    //   });
-    // } catch (error) {
-    //   console.log(error);
-    //   toast({
-    //     title: "Error deleting brand!",
-    //     description: error?.message || error?.data?.message,
-    //     variant: "destructive",
-    //   });
-    // }
-  };
 
   return (
     <div className="flex w-full gap-6">

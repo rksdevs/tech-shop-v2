@@ -6,7 +6,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../components/ui/table";
+} from "../components/ui/table";
 import {
   useReactTable,
   flexRender,
@@ -19,7 +19,7 @@ import {
   getSortedRowModel,
 } from "@tanstack/react-table";
 import { useNavigate, useParams } from "react-router-dom";
-import { useToast } from "../../components/ui/use-toast";
+import { useToast } from "../components/ui/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,51 +27,47 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../../components/ui/dropdown-menu";
-import { Button } from "../../components/ui/button";
+} from "../components/ui/dropdown-menu";
+import { Button } from "../components/ui/button";
 import {
   Check,
   ChevronLeft,
   ChevronRight,
   MoreHorizontal,
+  Search,
   X,
 } from "lucide-react";
-import sampleImg from "../../components/assets/images/psu-1.png";
-import { useGetProductsQuery } from "../../Features/productApiSlice";
-import PaginationComponent from "../../components/PaginationComponent";
-import Container from "../../components/Container";
-import { Card, CardFooter } from "../../components/ui/card";
-import { useGetOrdersQuery } from "../../Features/orderApiSlice";
-import {
-  useDeleteUserMutation,
-  useGetUsersQuery,
-} from "../../Features/usersApiSlice";
-import { Pagination } from "../../components/ui/pagination";
-import { Input } from "../../components/ui/input";
+import sampleImg from "../components/assets/images/psu-1.png";
+import { useGetProductsQuery } from "../Features/productApiSlice";
+import PaginationComponent from "../components/PaginationComponent";
+import Container from "../components/Container";
+import { Card, CardFooter } from "../components/ui/card";
+import { useGetOrdersQuery } from "../Features/orderApiSlice";
+import { Pagination } from "../components/ui/pagination";
+import { Input } from "../components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../components/ui/select";
+} from "../components/ui/select";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { useDispatch } from "react-redux";
+import { useGetMyOrdersQuery } from "../Features/orderApiSlice";
 
-const AdminAllUsers = () => {
+const MyOrders = () => {
   const {
-    data: allUsers,
+    data: allOrders,
     isLoading: productsLoading,
     error: productsError,
-    refetch,
-  } = useGetUsersQuery();
+  } = useGetMyOrdersQuery();
 
-  const allUsersData = useMemo(() => {
-    return allUsers || [];
-  }, [allUsers]);
+  const allOrdersData = useMemo(() => {
+    return allOrders || [];
+  }, [allOrders]);
 
-  const [deleteUser, { isLoading: deleteUserLoading, error: deleteUserError }] =
-    useDeleteUserMutation();
+  // const [] = useDele
 
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -83,61 +79,112 @@ const AdminAllUsers = () => {
   const columnHelper = createColumnHelper();
   /** @type import('@tanstack/react-table').columnDef<any>*/
   const columns = [
-    columnHelper.accessor((row) => row.name, {
-      accessorKey: "name",
+    columnHelper.accessor((row) => row?._id, {
+      // id: "Order Date",
+      accessorKey: "orderNo",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className=""
           >
-            Name
+            Order No
             <CaretSortIcon className="ml-2 h-4 w-4" />
           </Button>
         );
       },
-      cell: (info) => <p className="flex pl-4">{info.getValue()}</p>,
-    }),
-    columnHelper.accessor((row) => row.email, {
-      accessorKey: "email",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className=""
-          >
-            Email Address
-            <CaretSortIcon className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-      cell: (info) => <p className="flex pl-4">{info.getValue()}</p>,
-    }),
-    columnHelper.accessor((row) => row.createdAt, {
-      accessorKey: "creationDate",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className=""
-          >
-            Created On
-            <CaretSortIcon className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-      cell: (info) => (
-        <p className="flex pl-4">{info.getValue().substring(0, 10)}</p>
+      //   cell: (info) => <img src={`${info.getValue()}`} alt="product-img" />,
+      cell: ({ row }) => (
+        <p className="pl-4">
+          {row.getValue("orderNo").length > 10
+            ? `${row.getValue("orderNo").substring(0, 10)}...`
+            : row.getValue("orderNo")}
+        </p>
       ),
     }),
-
-    columnHelper.accessor((row) => row.isAdmin, {
-      id: "Admin",
+    columnHelper.accessor((row) => row.orderItems, {
+      id: "Order Items",
+      // accessorKey: "name",
+      //   cell: (info) => <img src={`${info.getValue()}`} alt="product-img" />,
       cell: (info) => (
-        <div className="pl-4">
+        <ul>
+          {info.getValue().map((item, index) => (
+            <li key={index}>
+              <span>{item.qty}</span> X{" "}
+              <span>
+                {item.name.length > 20
+                  ? `${item.name.substring(0, 20)}...`
+                  : item.name}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ),
+    }),
+    columnHelper.accessor((row) => row.createdAt, {
+      // id: "Order Date",
+      accessorKey: "date",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Order Date
+            <CaretSortIcon className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      //   cell: (info) => <img src={`${info.getValue()}`} alt="product-img" />,
+      cell: ({ row }) => (
+        <p className="pl-4">{row.getValue("date").substring(0, 10)}</p>
+      ),
+    }),
+    columnHelper.accessor((row) => row.totalPrice, {
+      // id: "Order Date",
+      accessorKey: "totalPrice",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Price
+            <CaretSortIcon className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      //   cell: (info) => <img src={`${info.getValue()}`} alt="product-img" />,
+      cell: ({ row }) => <p className="pl-4">₹ {row.getValue("totalPrice")}</p>,
+    }),
+    columnHelper.accessor((row) => row.isPaid, {
+      id: "Paid",
+      cell: (info) => (
+        <div>
+          {info.getValue() ? (
+            <Check className="h-4 w-4" />
+          ) : (
+            <X className="h-4 w-4 text-primary" />
+          )}
+        </div>
+      ),
+    }),
+    columnHelper.accessor((row) => row.isShipped, {
+      id: "Ship",
+      cell: (info) => (
+        <div>
+          {info.getValue() ? (
+            <Check className="h-4 w-4" />
+          ) : (
+            <X className="h-4 w-4 text-primary" />
+          )}
+        </div>
+      ),
+    }),
+    columnHelper.accessor((row) => row.isDelivered, {
+      id: "Delivery",
+      cell: (info) => (
+        <div>
           {info.getValue() ? (
             <Check className="h-4 w-4" />
           ) : (
@@ -158,17 +205,10 @@ const AdminAllUsers = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            {/* <DropdownMenuItem
-              onClick={() =>
-                navigate(`/admin/allusers/editUser/${info.getValue()}`)
-              }
-            >
-              Edit
-            </DropdownMenuItem> */}
             <DropdownMenuItem
-              onClick={(e) => handleDeleteUser(e, info.getValue())}
+              onClick={() => navigate(`/order/${info.getValue()}`)}
             >
-              Delete
+              View
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -178,8 +218,8 @@ const AdminAllUsers = () => {
 
   const [sorting, setSorting] = useState([]);
   const [columnFilters, setColumnFilters] = useState([]);
-  const allUserstable = useReactTable({
-    data: allUsersData,
+  const allOrderstable = useReactTable({
+    data: allOrdersData,
     columns,
     onColumnFiltersChange: setColumnFilters,
     onSortingChange: setSorting,
@@ -195,55 +235,30 @@ const AdminAllUsers = () => {
     },
   });
 
-  const handleDeleteUser = async (e, brandId) => {
-    e.preventDefault();
-    try {
-      await deleteUser(brandId).unwrap();
-      refetch();
-      toast({
-        title: "User deleted!",
-      });
-    } catch (error) {
-      toast({
-        title: "Error deleting brand!",
-        description: error?.message || error?.data?.message,
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <div className="flex w-full gap-6">
       <Container className="flex flex-col gap-4">
         <div className="section-heading flex mt-4 justify-between">
-          <h1 className="text-[28px] font-extrabold">All Users</h1>
+          <h1 className="text-[28px] font-extrabold">All Orders</h1>
           <div className="flex gap-4">
             <Input
-              placeholder="Search by name..."
-              value={allUserstable.getColumn("name")?.getFilterValue() ?? ""}
-              onChange={(event) =>
-                allUserstable
-                  .getColumn("name")
-                  ?.setFilterValue(event.target.value)
+              placeholder="Search by order no..."
+              value={
+                allOrderstable.getColumn("orderNo")?.getFilterValue() ?? ""
               }
-              className="max-w-sm"
-            />
-            <Input
-              placeholder="Search by email..."
-              value={allUserstable.getColumn("email")?.getFilterValue() ?? ""}
               onChange={(event) =>
-                allUserstable
-                  .getColumn("email")
+                allOrderstable
+                  .getColumn("orderNo")
                   ?.setFilterValue(event.target.value)
               }
               className="max-w-sm"
             />
           </div>
         </div>
-        <Card className="min-h-[54vh] flex flex-col justify-between">
+        <Card>
           <Table>
             <TableHeader>
-              {allUserstable?.getHeaderGroups().map((headerGroup) => (
+              {allOrderstable?.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="bg-muted">
                   {headerGroup.headers.map((header) => (
                     <TableHead
@@ -260,7 +275,7 @@ const AdminAllUsers = () => {
               ))}
             </TableHeader>
             <TableBody>
-              {allUserstable?.getRowModel().rows.map((row) => (
+              {allOrderstable?.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="text-left">
@@ -280,43 +295,59 @@ const AdminAllUsers = () => {
                 <Button
                   className="border rounded p-2 px-4 px-3"
                   variant="outline"
-                  onClick={() => allUserstable.firstPage()}
-                  disabled={!allUserstable.getCanPreviousPage()}
+                  onClick={() => allOrderstable.firstPage()}
+                  disabled={!allOrderstable.getCanPreviousPage()}
                 >
                   {"<<"}
                 </Button>
                 <Button
                   className="border rounded p-2 px-4"
                   variant="outline"
-                  onClick={() => allUserstable.previousPage()}
-                  disabled={!allUserstable.getCanPreviousPage()}
+                  onClick={() => allOrderstable.previousPage()}
+                  disabled={!allOrderstable.getCanPreviousPage()}
                 >
                   {"<"}
                 </Button>
                 <Button
                   className="border rounded p-2 px-4"
                   variant="outline"
-                  onClick={() => allUserstable.nextPage()}
-                  disabled={!allUserstable.getCanNextPage()}
+                  onClick={() => allOrderstable.nextPage()}
+                  disabled={!allOrderstable.getCanNextPage()}
                 >
                   {">"}
                 </Button>
                 <Button
                   className="border rounded p-2 px-4 "
                   variant="outline"
-                  onClick={() => allUserstable.lastPage()}
-                  disabled={!allUserstable.getCanNextPage()}
+                  onClick={() => allOrderstable.lastPage()}
+                  disabled={!allOrderstable.getCanNextPage()}
                 >
                   {">>"}
                 </Button>
               </Pagination>
+
+              {/* <Label htmlFor="category">Category</Label> */}
+
+              {/* <select
+                value={allOrderstable.getState().pagination.pageSize}
+                onChange={(e) => {
+                  allOrderstable.setPageSize(Number(e.target.value));
+                }}
+              >
+                {[10, 20, 30, 40, 50].map((pageSize) => (
+                  <option key={pageSize} value={pageSize}>
+                    Show {pageSize}
+                  </option>
+                ))}
+              </select> */}
+              {/* {dataQuery.isFetching ? "Loading..." : null} */}
             </div>
             <div className="flex gap-8">
               <span className="flex items-center gap-1 ">
                 <div className="text-sm font-bold">Page</div>
                 <strong>
-                  {allUserstable.getState().pagination.pageIndex + 1} of{" "}
-                  {allUserstable.getPageCount().toLocaleString()}
+                  {allOrderstable.getState().pagination.pageIndex + 1} of{" "}
+                  {allOrderstable.getPageCount().toLocaleString()}
                 </strong>
               </span>
               <span className="flex items-center gap-1 text-sm">
@@ -324,13 +355,13 @@ const AdminAllUsers = () => {
                 <Input
                   type="number"
                   defaultValue={
-                    allUserstable.getState().pagination.pageIndex + 1
+                    allOrderstable.getState().pagination.pageIndex + 1
                   }
                   onChange={(e) => {
                     const page = e.target.value
                       ? Number(e.target.value) - 1
                       : 0;
-                    allUserstable.setPageIndex(page);
+                    allOrderstable.setPageIndex(page);
                   }}
                   className="border p-1 rounded w-16"
                 />
@@ -338,13 +369,13 @@ const AdminAllUsers = () => {
             </div>
             <div className="grid md:grid-cols-2">
               <Select
-                value={allUserstable.getState().pagination.pageSize}
+                value={allOrderstable.getState().pagination.pageSize}
                 onValueChange={(e) => {
-                  allUserstable.setPageSize(Number(e));
+                  allOrderstable.setPageSize(Number(e));
                 }}
               >
-                <SelectTrigger id="category" aria-label="Select category">
-                  <SelectValue placeholder={`Show`} />
+                <SelectTrigger id="category" aria-label="Select pages">
+                  <SelectValue placeholder={"Show"} />
                 </SelectTrigger>
                 <SelectContent>
                   {[10, 20, 30, 40, 50].map((pageSize) => (
@@ -356,9 +387,9 @@ const AdminAllUsers = () => {
               </Select>
               <div className="text-xs text-muted-foreground self-center">
                 Showing{" "}
-                {allUserstable.getRowModel().rows.length.toLocaleString()} of{" "}
-                {allUserstable?.getRowModel().rows?.length?.toLocaleString() *
-                  allUserstable.getPageCount().toLocaleString()}{" "}
+                {allOrderstable.getRowModel().rows.length.toLocaleString()} of{" "}
+                {allOrderstable?.getRowModel().rows?.length?.toLocaleString() *
+                  allOrderstable.getPageCount().toLocaleString()}{" "}
                 Rows
               </div>
             </div>
@@ -369,4 +400,4 @@ const AdminAllUsers = () => {
   );
 };
 
-export default AdminAllUsers;
+export default MyOrders;

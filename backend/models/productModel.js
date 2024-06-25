@@ -98,7 +98,7 @@ const productSchema = new mongoose.Schema({
         expansionSlots: {type:String},
         storageInterface: {type:String},
         ramType: {type:String},
-        ramFormFactor: {type:String},
+        ramFormFactor: {type:String, enum:['Desktop', 'Laptop', 'NA'], default: 'NA'},
         wattage: {type:String},
         networkCardInterfaces: {type:String}
     }

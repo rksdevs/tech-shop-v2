@@ -48,15 +48,31 @@ const createProduct = asyncHandler(async(req,res)=>{
         name: 'Sample Name',
         price: 0,
         user: req.user._id,
-        brand: 'Sample Brand',
-        category: 'Sample Category',
-        modelNumber: 'Sample Model Number',
         image: '/images/sample.jpg',
         countInStock: 0,
         numReviews: 0,
         description: 'Sample Description',
         productDiscount: 0,
-        priceAfterDiscount: 0
+        priceAfterDiscount: 0,
+        sku: "SAMPLE",
+        brand: "AMD",
+        category: "Motherboard",
+        rating: 0,
+        numReviews: 0,
+        isOnOffer: false,
+        compatibilityDetails: {
+            socketType: "",
+            powerConsumption: "",
+            chipsetModel: "",
+            formFactor: "",
+            memorySlots: "",
+            expansionSlots: "",
+            storageInterface: "",
+            ramType: "",
+            ramFormFactor: "",
+            wattage: "",
+            networkCardInterfaces: ""
+        }
     });
 
     const createdProduct = await newProduct.save();
@@ -67,7 +83,7 @@ const createProduct = asyncHandler(async(req,res)=>{
 //@route  PUT /api/products/:id
 //@access Private/Admin
 const updateProduct = asyncHandler(async(req,res)=>{
-    const {name, price, brand, category, modelNumber, image, countInStock, description, productDiscount} = req.body;
+    const {name, price, brand, category, sku, image, countInStock, description, productDiscount, socketType, powerConsumption, chipsetModel, formFactor, memorySlots, ramType, ramFormFactor} = req.body;
 
     const product = await Product.findById(req.params.id);
 
@@ -76,13 +92,24 @@ const updateProduct = asyncHandler(async(req,res)=>{
         product.price = price;
         product.brand = brand;
         product.category = category;
-        product.modelNumber = modelNumber;
+        product.sku = sku;
         product.image = image;
         product.countInStock = countInStock;
         product.description = description;
+        product.compatibilityDetails.socketType = socketType;
+        product.compatibilityDetails.powerConsumption = powerConsumption;
+        product.compatibilityDetails.chipsetModel = chipsetModel;
+        product.compatibilityDetails.formFactor = formFactor;
+        product.compatibilityDetails.memorySlots = memorySlots;
+        product.compatibilityDetails.ramType = ramType;
+        product.compatibilityDetails.ramFormFactor = ramFormFactor;
         product.productDiscount = productDiscount;
 
-        product.priceAfterDiscount = product.price - (product.price* product.productDiscount/100)
+        if(productDiscount > 0) {
+            product.priceAfterDiscount = product.price - (product.price* product.productDiscount/100)
+        } else {
+            product.priceAfterDiscount = product.price;
+        }
 
         const updatedProduct = await product.save();
         res.json(updatedProduct);

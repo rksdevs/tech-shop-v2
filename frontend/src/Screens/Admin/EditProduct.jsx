@@ -1,14 +1,18 @@
 import {
   ChevronLeft,
+  Delete,
+  DeleteIcon,
   Home,
   LineChart,
   Package,
   Package2,
   PanelLeft,
   PlusCircle,
+  Recycle,
   Search,
   Settings,
   ShoppingCart,
+  Trash2,
   Upload,
   Users2,
 } from "lucide-react";
@@ -49,9 +53,10 @@ import {
   useGetAllBrandsQuery,
   useGetAllCategoriesQuery,
   useGetProductDetailsQuery,
+  useUpdateProductMutation,
 } from "../../Features/productApiSlice";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useGetAllOffersQuery } from "../../Features/offersApiSlice";
 import {
   Dialog,
@@ -62,15 +67,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../../components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../components/ui/tooltip";
+import { useToast } from "../../components/ui/use-toast";
 
 function EditProduct() {
   const { id: productId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { toast } = useToast();
+
   const {
     data: product,
     isLoading: productLoading,
     isError: productError,
+    refetch,
   } = useGetProductDetailsQuery(productId);
 
   const {
@@ -91,9 +106,118 @@ function EditProduct() {
     error: offersError,
   } = useGetAllOffersQuery();
 
+  const [
+    updateProduct,
+    { isLoading: updateProductLoading, error: updateProductError },
+  ] = useUpdateProductMutation();
+
+  const [openCompDialog, setOpenCompDialog] = useState(false);
+  const [name, setName] = useState(product?.name || "");
+  const [description, setDescription] = useState(product?.description || "");
+  const [image, setImage] = useState(product?.image || "");
+  const [sku, setSku] = useState(product?.sku || "");
+  const [category, setCategory] = useState(product?.category || "");
+  const [brand, setBrand] = useState(product?.brand || "");
+  const [price, setPrice] = useState(product?.price || 0);
+  const [countInStock, setCountInStock] = useState(product?.countInStock || 0);
+  const [productDiscount, setProductDiscount] = useState(
+    product?.productDiscount || 0
+  );
+  // const [isOnOffer, setIsOnOffer] = useState(product?.isOnOffer || false);
+  // const [offerName, setOfferName] = useState(product?.offerName || "");
+  const [socketType, setSocketType] = useState(
+    product?.compatibilityDetails?.socketType || ""
+  );
+  const [powerConsumption, setPowerConsumption] = useState(
+    product?.compatibilityDetails?.powerConsumption || ""
+  );
+  const [chipsetModel, setChipsetModel] = useState(
+    product?.compatibilityDetails?.chipsetModel || ""
+  );
+  const [formFactor, setFormFactor] = useState(
+    product?.compatibilityDetails?.formFactor || ""
+  );
+  const [memorySlots, setMemorySlots] = useState(
+    product?.compatibilityDetails?.memorySlots || ""
+  );
+  const [ramType, setRamType] = useState(
+    product?.compatibilityDetails?.ramType || ""
+  );
+  const [ramFormFactor, setRamFormFactor] = useState(
+    product?.compatibilityDetails?.ramFormFactor || ""
+  );
+
+  const handleProductUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await updateProduct({
+        name,
+        description,
+        image,
+        sku,
+        category,
+        brand,
+        price,
+        countInStock,
+        productDiscount,
+        socketType,
+        powerConsumption,
+        chipsetModel,
+        formFactor,
+        memorySlots,
+        ramType,
+        ramFormFactor,
+        productId,
+      }).unwrap();
+      // console.log(res);
+      toast({
+        title: `Product Updated: ${res?.name}!`,
+      });
+      refetch();
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: `Product Updated Failed!`,
+        description: error,
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
-    console.log(product, "61");
+    if (product?.name) {
+      setName(product?.name);
+      setDescription(product?.description);
+      setImage(product?.image);
+      setSku(product?.sku);
+      setCategory(product?.category);
+      setBrand(product?.brand);
+      setPrice(product?.price);
+      setCountInStock(product?.countInStock);
+      setProductDiscount(product?.productDiscount);
+      // setIsOnOffer(product?.isOnOffer);
+      // setOfferName(product?.offerName || "");
+      setSocketType(product?.compatibilityDetails?.socketType);
+      setPowerConsumption(product?.compatibilityDetails?.powerConsumption);
+      setChipsetModel(product?.compatibilityDetails?.chipsetModel);
+      setFormFactor(product?.compatibilityDetails?.formFactor);
+      setMemorySlots(product?.compatibilityDetails?.memorySlots);
+      setRamType(product?.compatibilityDetails?.ramType);
+      setRamFormFactor(product?.compatibilityDetails?.ramFormFactor || "NA");
+    }
   }, [product]);
+
+  // const handleRemoveOffer = () => {
+  //   setIsOnOffer(false);
+  //   setOfferName("");
+  // };
+
+  // useEffect(() => {
+  //   if (!offerName) {
+  //     setIsOnOffer(true);
+  //   }
+  // }, [offerName]);
+
   return (
     <div className="flex w-full gap-6">
       <Container className="flex flex-col gap-8 p-4">
@@ -119,14 +243,22 @@ function EditProduct() {
                     ? product?.name.split(" ").slice(0, 7).join(" ")
                     : product?.name}
                 </h1>
-                <Badge variant="outline" className="ml-auto sm:ml-0">
-                  In stock
-                </Badge>
+                {/* {product?.countInStock && (
+                  <Badge variant="outline" className="ml-auto sm:ml-0">
+                    In stock
+                  </Badge>
+                )} */}
                 <div className="hidden items-center gap-2 md:ml-auto md:flex">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="pt-1">
                     Discard
                   </Button>
-                  <Button size="sm">Save Product</Button>
+                  <Button
+                    size="sm"
+                    className="pt-1"
+                    onClick={(e) => handleProductUpdate(e)}
+                  >
+                    Save Product
+                  </Button>
                 </div>
               </div>
               <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-3 lg:gap-8">
@@ -147,19 +279,23 @@ function EditProduct() {
                             id="name"
                             type="text"
                             className="w-full"
-                            defaultValue={
+                            placeholder={
                               product?.name.split(" ").length > 10
                                 ? product?.name.split(" ").slice(0, 7).join(" ")
                                 : product?.name
                             }
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
                           />
                         </div>
                         <div className="grid gap-3">
                           <Label htmlFor="description">Description</Label>
                           <Textarea
                             id="description"
-                            defaultValue={product?.description}
+                            placeholder={product?.description}
                             className="min-h-24"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
                           />
                         </div>
                       </div>
@@ -176,16 +312,25 @@ function EditProduct() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead className="w-[100px]">SKU</TableHead>
-                            <TableHead>Stock</TableHead>
-                            <TableHead>Price (₹)</TableHead>
-                            <TableHead>Discount (%)</TableHead>
+                            <TableHead className="pl-3">SKU</TableHead>
+                            <TableHead className="pl-3">Stock</TableHead>
+                            <TableHead className="pl-3">Price (₹)</TableHead>
+                            <TableHead className="pl-3">Discount (%)</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           <TableRow>
-                            <TableCell className="font-semibold">
-                              {product?.sku}
+                            <TableCell className="">
+                              <Label htmlFor="sku" className="sr-only">
+                                SKU
+                              </Label>
+                              <Input
+                                id="sku"
+                                type="text"
+                                placeholder={product?.sku}
+                                value={sku}
+                                onChange={(e) => setSku(e.target.value)}
+                              />
                             </TableCell>
                             <TableCell>
                               <Label htmlFor="stock-1" className="sr-only">
@@ -194,7 +339,11 @@ function EditProduct() {
                               <Input
                                 id="stock-1"
                                 type="number"
-                                defaultValue={product?.countInStock}
+                                placeholder={product?.countInStock}
+                                value={countInStock}
+                                onChange={(e) =>
+                                  setCountInStock(e.target.value)
+                                }
                               />
                             </TableCell>
                             <TableCell>
@@ -204,7 +353,9 @@ function EditProduct() {
                               <Input
                                 id="price-1"
                                 type="number"
-                                defaultValue={product?.price}
+                                placeholder={product?.price}
+                                value={price}
+                                onChange={(e) => setPrice(e.target.value)}
                               />
                             </TableCell>
                             <TableCell>
@@ -214,7 +365,11 @@ function EditProduct() {
                               <Input
                                 id="discount"
                                 type="number"
-                                defaultValue={product?.productDiscount}
+                                placeholder={product?.productDiscount}
+                                value={productDiscount}
+                                onChange={(e) =>
+                                  setProductDiscount(e.target.value)
+                                }
                               />
                             </TableCell>
                           </TableRow>
@@ -230,7 +385,10 @@ function EditProduct() {
                       <div className="grid gap-6 sm:grid-cols-3">
                         <div className="grid gap-3">
                           <Label htmlFor="category">Category</Label>
-                          <Select>
+                          <Select
+                            value={category}
+                            onValueChange={(e) => setCategory(e)}
+                          >
                             <SelectTrigger
                               id="category"
                               aria-label="Select category"
@@ -248,7 +406,10 @@ function EditProduct() {
                         </div>
                         <div className="grid gap-3">
                           <Label htmlFor="brand">Brand</Label>
-                          <Select>
+                          <Select
+                            value={brand}
+                            onValueChange={(e) => setBrand(e)}
+                          >
                             <SelectTrigger id="brand" aria-label="Change Brand">
                               <SelectValue placeholder="Change Brand" />
                             </SelectTrigger>
@@ -268,19 +429,49 @@ function EditProduct() {
                 <div className="grid auto-rows-max items-start gap-4 lg:gap-8">
                   <Card x-chunk="dashboard-07-chunk-3">
                     <CardHeader>
-                      <CardTitle>Offers</CardTitle>
+                      <CardTitle className="flex items-center justify-between">
+                        Offers{" "}
+                        {/* <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Trash2
+                                className={`${
+                                  !isOnOffer ? "hidden" : ""
+                                } hover:text-primary hover:cursor-pointer w-4 h-4`}
+                                onClick={handleRemoveOffer}
+                              />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Remove Offers</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider> */}
+                      </CardTitle>
                       <CardDescription>
                         {product?.isOnOffer
                           ? "Current on below offer"
-                          : "Not on offer, add offer below"}
+                          : "Not on offer"}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="grid gap-6">
-                        {allOffers?.length ? (
+                        {product?.isOnOffer ? (
+                          <div className="grid gap-3">
+                            {/* <Input placeholder={product?.offerName} readOnly /> */}
+                            <Input placeholder="Offername" readOnly />
+                          </div>
+                        ) : (
+                          <div className="grid gap-3">
+                            <Input placeholder="No offer applied" readOnly />
+                          </div>
+                        )}
+                        {/* {allOffers?.length ? (
                           <div className="grid gap-3">
                             <Label htmlFor="status">Availble Offers</Label>
-                            <Select>
+                            <Select
+                              value={offerName}
+                              onValueChange={(e) => setOfferName(e)}
+                            >
                               <SelectTrigger
                                 id="status"
                                 aria-label="Select status"
@@ -302,21 +493,14 @@ function EditProduct() {
                                     {offer?.offerName}
                                   </SelectItem>
                                 ))}
-                                {/* <SelectItem value="draft">Draft</SelectItem>
-                                <SelectItem value="published">
-                                  Active
-                                </SelectItem>
-                                <SelectItem value="archived">
-                                  Archived
-                                </SelectItem> */}
                               </SelectContent>
                             </Select>
                           </div>
                         ) : (
                           <div className="grid gap-3">
-                            <Input placeholder="No offers available" disabled />
+                            <Input placeholder="No offers available" readOnly />
                           </div>
-                        )}
+                        )} */}
                       </div>
                     </CardContent>
                   </Card>
@@ -349,7 +533,10 @@ function EditProduct() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <Dialog>
+                      <Dialog
+                        open={openCompDialog}
+                        onOpenChange={setOpenCompDialog}
+                      >
                         <DialogTrigger asChild>
                           <Button variant="outline">Edit Compatibility</Button>
                         </DialogTrigger>
@@ -368,9 +555,9 @@ function EditProduct() {
                               </Label>
                               <Input
                                 id="socket"
-                                value=""
                                 className="col-span-3"
-                                onChange={() => console.log("socket")}
+                                value={socketType}
+                                onChange={(e) => setSocketType(e.target.value)}
                               />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
@@ -379,9 +566,11 @@ function EditProduct() {
                               </Label>
                               <Input
                                 id="power"
-                                value=""
                                 className="col-span-3"
-                                onChange={() => console.log("socket")}
+                                value={powerConsumption}
+                                onChange={(e) =>
+                                  setPowerConsumption(e.target.value)
+                                }
                               />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
@@ -390,9 +579,11 @@ function EditProduct() {
                               </Label>
                               <Input
                                 id="chipset"
-                                value=""
                                 className="col-span-3"
-                                onChange={() => console.log("socket")}
+                                value={chipsetModel}
+                                onChange={(e) =>
+                                  setChipsetModel(e.target.value)
+                                }
                               />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
@@ -404,9 +595,9 @@ function EditProduct() {
                               </Label>
                               <Input
                                 id="formFactor"
-                                value=""
                                 className="col-span-3"
-                                onChange={() => console.log("socket")}
+                                value={formFactor}
+                                onChange={(e) => setFormFactor(e.target.value)}
                               />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
@@ -418,9 +609,9 @@ function EditProduct() {
                               </Label>
                               <Input
                                 id="memorySlots"
-                                value=""
                                 className="col-span-3"
-                                onChange={() => console.log("socket")}
+                                value={memorySlots}
+                                onChange={(e) => setMemorySlots(e.target.value)}
                               />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
@@ -429,9 +620,9 @@ function EditProduct() {
                               </Label>
                               <Input
                                 id="ramType"
-                                value=""
                                 className="col-span-3"
-                                onChange={() => console.log("socket")}
+                                value={ramType}
+                                onChange={(e) => setRamType(e.target.value)}
                               />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
@@ -441,16 +632,36 @@ function EditProduct() {
                               >
                                 RAM form factor
                               </Label>
-                              <Input
-                                id="ramFormFactor"
-                                value=""
-                                className="col-span-3"
-                                onChange={() => console.log("socket")}
-                              />
+                              <Select
+                                value={ramFormFactor}
+                                onValueChange={(e) => setRamFormFactor(e)}
+                              >
+                                <SelectTrigger
+                                  id="ramFormFactor"
+                                  aria-label="Select RAM form factor"
+                                  className="col-span-3"
+                                >
+                                  <SelectValue placeholder="RAM form factor" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Desktop">
+                                    Desktop
+                                  </SelectItem>
+                                  <SelectItem value="Laptop">Laptop</SelectItem>
+                                  <SelectItem value="NA">
+                                    Not Applicable
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
                             </div>
                           </div>
                           <DialogFooter>
-                            <Button type="submit">Save changes</Button>
+                            <Button
+                              type="submit"
+                              onClick={() => setOpenCompDialog(false)}
+                            >
+                              Save changes
+                            </Button>
                           </DialogFooter>
                         </DialogContent>
                       </Dialog>

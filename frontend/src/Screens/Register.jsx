@@ -49,7 +49,6 @@ const Register = () => {
         });
       }
     } else {
-      console.log("Passwords do not match");
       toast({
         title: "Passwords do not match!",
         variant: "destructive",
