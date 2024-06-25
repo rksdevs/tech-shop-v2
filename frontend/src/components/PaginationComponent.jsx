@@ -43,7 +43,7 @@ const PaginationComponent = ({
               ? keyword
                 ? `/search/${keyword}/page/${1}`
                 : `/allproducts/page/${1}`
-              : `/admin/productList/${1}`
+              : `/admin/all-products/${1}`
           }
           className="border border-muted-foreground"
         >
@@ -75,7 +75,7 @@ const PaginationComponent = ({
                   ? keyword
                     ? `/search/${keyword}/page/${i}`
                     : `/allproducts/page/${i}`
-                  : `/admin/productList/${i}`
+                  : `/admin/all-products/${i}`
               }
               className="border border-muted-foreground"
             >
@@ -103,7 +103,7 @@ const PaginationComponent = ({
                 ? keyword
                   ? `/search/${keyword}/page/${totalPages}`
                   : `/allproducts/page/${totalPages}`
-                : `/admin/productList/${totalPages}`
+                : `/admin/all-products/${totalPages}`
             }
             className="border border-muted-foreground"
           >
@@ -122,7 +122,7 @@ const PaginationComponent = ({
                   ? keyword
                     ? `/search/${keyword}/page/${i}`
                     : `/allproducts/page/${i}`
-                  : `/admin/productList/${i}`
+                  : `/admin/all-products/${i}`
               }
               className="border border-muted-foreground"
             >
@@ -145,7 +145,7 @@ const PaginationComponent = ({
                 ? keyword
                   ? `/search/${keyword}/page/${currentPage - 1}`
                   : `/allproducts/page/${currentPage - 1}`
-                : `/admin/productList/${currentPage - 1}`
+                : `/admin/all-products/${currentPage - 1}`
             }
           />
         </PaginationItem>
@@ -157,7 +157,7 @@ const PaginationComponent = ({
                 ? keyword
                   ? `/search/${keyword}/page/${currentPage + 1}`
                   : `/allproducts/page/${currentPage + 1}`
-                : `/admin/productList/${currentPage + 1}`
+                : `/admin/all-products/${currentPage + 1}`
             }
           />
         </PaginationItem>

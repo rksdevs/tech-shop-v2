@@ -101,8 +101,15 @@ export const productApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags:['Products'],
             keepUnusedDataFor: 5
-        })
+        }),
+        getAllProductsAdmin: builder.query({
+            query: () =>({
+                url: `${PRODUCTS_URL}/allProductsAdmin`,
+            }),
+            providesTags: ['Product'],
+            keepUnusedDataFor: 5
+        }),
     })
 })
 
-export const {useGetProductsQuery, useGetProductDetailsQuery, useCreateProductMutation, useUpdateProductMutation, useUploadProductImageMutation, useDeleteProductMutation, useGetProductsByCategoryQuery, useUpdateProductStockMutation, useCreateProductReviewMutation, useGetTopProductsQuery, useGetAllCategoriesQuery, useGetAllBrandsQuery, useGetLatestProductsQuery, useFilteredProductListMutation} = productApiSlice;
+export const {useGetProductsQuery, useGetProductDetailsQuery, useCreateProductMutation, useUpdateProductMutation, useUploadProductImageMutation, useDeleteProductMutation, useGetProductsByCategoryQuery, useUpdateProductStockMutation, useCreateProductReviewMutation, useGetTopProductsQuery, useGetAllCategoriesQuery, useGetAllBrandsQuery, useGetLatestProductsQuery, useFilteredProductListMutation, useGetAllProductsAdminQuery} = productApiSlice;

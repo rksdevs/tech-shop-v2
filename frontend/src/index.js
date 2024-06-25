@@ -50,6 +50,7 @@ const router = createBrowserRouter(createRoutesFromElements(
 
   <Route path='' element={<AdminRoute />}>
     <Route path='/admin/all-products' element={<AdminAllProducts />} />
+    <Route path='/admin/all-products/:pagenumber' element={<AdminAllProducts />} />
     <Route path='/admin/all-orders' element={<AdminAllOrders />} />
     <Route path='/admin/all-offers' element={<AdminCreateOffer />} />
     <Route path='/admin/all-users' element={<AdminAllUsers />} />

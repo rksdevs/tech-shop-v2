@@ -335,4 +335,29 @@ if (query.$and.length === 0) {
     }
 })
 
-export {getAllProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductsByCategory, updateProductStock, createProductReview, getTopRatedProducts, getAllCategories, getAllBrands, getProductsByBrands, getLatestProducts, getFilteredProducts}
+//@desc Fetch all products
+//@route GET /api/products
+//@access Public
+const getAllProductsAdmin = asyncHandler(async(req,res)=>{
+    // const pageSize = process.env.PAGINATION_LIMIT;
+    // const page = Number(req.query.pageNumber) || 1;
+
+    // const keyword = req.query.keyword ? {name: {$regex : req.query.keyword, $options: 'i'}} : {};
+
+    // const count = await Product.countDocuments({...keyword});
+    // let products;
+    // if(req.query.pageNumber) {
+    //     products = await Product.find({...keyword}).limit(pageSize).skip(pageSize * (page -1));  
+    // } else {
+    //     products = await Product.find();
+    // }
+    const products = await Product.find()
+    if (products) {
+        return res.json(products)
+    } else {
+        res.status(404);
+        throw new Error ('Resources not found! Here is a pancakce..')
+    }
+})
+
+export {getAllProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductsByCategory, updateProductStock, createProductReview, getTopRatedProducts, getAllCategories, getAllBrands, getProductsByBrands, getLatestProducts, getFilteredProducts, getAllProductsAdmin}
