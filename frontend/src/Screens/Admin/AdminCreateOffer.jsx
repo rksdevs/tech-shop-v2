@@ -1,5 +1,4 @@
 import Container from "../../components/Container";
-import { Breadcrumbs } from "../../components/Breadcrumbs";
 import {
   Card,
   CardContent,
@@ -52,7 +51,7 @@ const AdminCreateOffer = () => {
   } = useGetAllOffersQuery();
 
   useEffect(() => {
-    console.log(allOffers);
+    // console.log(allOffers);
   }, [allOffers]);
 
   const handleShippingAddress = () => {};

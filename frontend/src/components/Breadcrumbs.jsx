@@ -8,25 +8,58 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "../components/ui/breadcrumb";
+import { Link, useLocation, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 export function Breadcrumbs() {
+  const location = useLocation();
+  const { id: itemId } = useParams();
+  const [currentPage, setCurrentPage] = useState("");
+  const [previousPages, setPreviousPages] = useState([]);
+
+  useEffect(() => {
+    if (location.pathname === "/allproducts") {
+      setCurrentPage("All Products");
+    } else if (location.pathname === "/cart") {
+      setCurrentPage("Cart");
+    } else if (location.pathname === "/buildcustompc") {
+      setCurrentPage("Custom Pc");
+    } else if (location.pathname === "/prebuilt-pc") {
+      setCurrentPage("Prebuilt PC");
+    } else if (location.pathname === "/prebuilt-pc") {
+      setCurrentPage("Prebuilt PC");
+    } else if (location.pathname.includes("/product/") && itemId) {
+      setCurrentPage("Product");
+      setPreviousPages(["All Products"]);
+    } else if (location.pathname === "/checkout") {
+      setCurrentPage("Checkout");
+      setPreviousPages(["Cart"]);
+    } else if (location.pathname.includes("/order/") && itemId) {
+      setCurrentPage("Order");
+    }
+  }, [location, itemId]);
+
   return (
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          <Link to="/">Home</Link>
         </BreadcrumbItem>
         <BreadcrumbSeparator>
           <SlashIcon />
         </BreadcrumbSeparator>
+        {previousPages?.map((item, index) => (
+          <div className="flex justify-center items-center gap-1.5" key={index}>
+            <BreadcrumbItem>
+              <Link to={`/${item.toLowerCase()}`}>{item}</Link>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator>
+              <SlashIcon />
+            </BreadcrumbSeparator>
+          </div>
+        ))}
         <BreadcrumbItem>
-          <BreadcrumbLink href="/components">Components</BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator>
-          <SlashIcon />
-        </BreadcrumbSeparator>
-        <BreadcrumbItem>
-          <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
+          <BreadcrumbPage>{currentPage}</BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>
