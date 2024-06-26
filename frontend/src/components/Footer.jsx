@@ -6,8 +6,10 @@ import gpayLogo from "../components/assets/images/gpay.png";
 import masterCardLogo from "../components/assets/images/mastercard.png";
 import visaLogo from "../components/assets/images/visa.png";
 import { Button } from "./ui/button";
+import { useNavigate } from "react-router-dom";
 
 const Footer = () => {
+  const navigate = useNavigate();
   return (
     <div className="flex w-full flex-col mt-8">
       <Container className="flex w-full items-center justify-between my-8">
@@ -30,16 +32,28 @@ const Footer = () => {
               <h2 className="font-bold text-large">Products</h2>
             </div>
             <ul className="footer-list text-muted-foreground">
-              <li className="footer-list-item font-semibold text-[12px] hover:underline hover:pointer">
+              <li
+                className="footer-list-item font-semibold text-[12px] hover:underline hover:cursor-pointer"
+                onClick={() => navigate("/allproducts")}
+              >
                 Computers
               </li>
-              <li className="footer-list-item font-semibold text-[12px] hover:underline hover:pointer">
+              <li
+                className="footer-list-item font-semibold text-[12px] hover:underline hover:cursor-pointer"
+                onClick={() => navigate("/allproducts")}
+              >
                 Laptops
               </li>
-              <li className="footer-list-item font-semibold text-[12px] hover:underline hover:pointer">
+              <li
+                className="footer-list-item font-semibold text-[12px] hover:underline hover:cursor-pointer"
+                onClick={() => navigate("/allproducts")}
+              >
                 Components
               </li>
-              <li className="footer-list-item font-semibold text-[12px] hover:underline hover:pointer">
+              <li
+                className="footer-list-item font-semibold text-[12px] hover:underline hover:cursor-pointer"
+                onClick={() => navigate("/allproducts")}
+              >
                 Accessories
               </li>
             </ul>
@@ -49,16 +63,28 @@ const Footer = () => {
               <h2 className="font-bold text-large">Custom Builds</h2>
             </div>
             <ul className="footer-list text-muted-foreground">
-              <li className="footer-list-item font-semibold text-[12px] hover:underline hover:pointer">
+              <li
+                className="footer-list-item font-semibold text-[12px] hover:underline hover:cursor-pointer"
+                onClick={() => navigate("/prebuilt-pc")}
+              >
                 Gaming PCs
               </li>
-              <li className="footer-list-item font-semibold text-[12px] hover:underline hover:pointer">
+              <li
+                className="footer-list-item font-semibold text-[12px] hover:underline hover:cursor-pointer"
+                onClick={() => navigate("/prebuilt-pc")}
+              >
                 Office PCs
               </li>
-              <li className="footer-list-item font-semibold text-[12px] hover:underline hover:pointer">
+              <li
+                className="footer-list-item font-semibold text-[12px] hover:underline hover:cursor-pointer"
+                onClick={() => navigate("/prebuilt-pc")}
+              >
                 Servers
               </li>
-              <li className="footer-list-item font-semibold text-[12px] hover:underline hover:pointer">
+              <li
+                className="footer-list-item font-semibold text-[12px] hover:underline hover:cursor-pointer"
+                onClick={() => navigate("/buildcustompc")}
+              >
                 Build your pc
               </li>
             </ul>
@@ -68,10 +94,16 @@ const Footer = () => {
               <h2 className="font-bold text-large">About Us</h2>
             </div>
             <ul className="footer-list text-muted-foreground">
-              <li className="footer-list-item font-semibold text-[12px] hover:underline hover:pointer">
+              <li
+                className="footer-list-item font-semibold text-[12px] hover:underline hover:cursor-pointer"
+                onClick={() => navigate("/aboutus")}
+              >
                 About us
               </li>
-              <li className="footer-list-item font-semibold text-[12px] hover:underline hover:pointer">
+              <li
+                className="footer-list-item font-semibold text-[12px] hover:underline hover:cursor-pointer"
+                onClick={() => navigate("/contactus")}
+              >
                 Contact us
               </li>
             </ul>

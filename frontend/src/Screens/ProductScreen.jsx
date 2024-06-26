@@ -1,7 +1,11 @@
 import Container from "../components/Container";
-import { useGetProductDetailsQuery } from "../Features/productApiSlice";
+import {
+  useCreateProductReviewMutation,
+  useGetProductDetailsQuery,
+  useGetProductFeaturesQuery,
+} from "../Features/productApiSlice";
 import ProductImg from "../components/assets/images/Designer.png";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { Breadcrumbs } from "../components/Breadcrumbs";
@@ -54,86 +58,48 @@ import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { useGetProductsQuery } from "../Features/productApiSlice";
 import { addToCart } from "../Features/cartSlice";
+import GPUSpecificationTable from "../components/GPUSpecificationTable";
+import { useToast } from "../components/ui/use-toast";
+import CPUSpecificationTable from "../components/CPUSpecificationTable";
+import MoboSpecificationTable from "../components/MoboSpecificationTable";
+import RAMSpecificationTable from "../components/RAMSpecificationTable";
+import CoolerSpecificationTable from "../components/CoolerSpecificationTable";
+import PSUSpecificationTable from "../components/PSUSpecificationTable";
+import MemorySpecificationTable from "../components/MemorySpecificationTable";
+import {
+  Select,
+  SelectItem,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
 
 const ProductScreen = () => {
-  const reviews = [
-    {
-      id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-      name: "Ava Taylor",
-      email: "avataylor@example.com",
-      subject: "Re: Meeting Agenda",
-      text: "Here's the agenda for our meeting next week. I've included all the topics we need to cover, as well as time allocations for each.\n\nIf you have any additional items to discuss or any specific points to address, please let me know, and we can integrate them into the agenda.\n\nIt's essential that our meeting is productive and addresses all relevant matters.\n\nLooking forward to our meeting! Ava",
-      date: "2022-10-10T10:45:00",
-      read: true,
-      labels: ["meeting", "work"],
-      rating: 4,
-    },
-    {
-      id: "c1a0ecb4-2540-49c5-86f8-21e5ce79e4e6",
-      name: "William Anderson",
-      email: "williamanderson@example.com",
-      subject: "Product Launch Update",
-      text: "The product launch is on track. I'll provide an update during our call. We've made substantial progress in the development and marketing of our new product.\n\nI'm excited to share the latest updates with you during our upcoming call. It's crucial that we coordinate our efforts to ensure a successful launch. Please come prepared with any questions or insights you may have.\n\nLet's make this product launch a resounding success!\n\nBest regards, William",
-      date: "2022-09-20T12:00:00",
-      read: false,
-      labels: ["meeting", "work", "important"],
-      rating: 4,
-    },
-    {
-      id: "ba54eefd-4097-4949-99f2-2a9ae4d1a836",
-      name: "Mia Harris",
-      email: "miaharris@example.com",
-      subject: "Re: Travel Itinerary",
-      text: "I've received the travel itinerary. It looks great! Thank you for your prompt assistance in arranging the details. I've reviewed the schedule and the accommodations, and everything seems to be in order. I'm looking forward to the trip, and I'm confident it'll be a smooth and enjoyable experience.\n\nIf there are any specific activities or attractions you recommend at our destination, please feel free to share your suggestions.\n\nExcited for the trip! Mia",
-      date: "2022-09-10T13:15:00",
-      read: true,
-      labels: ["personal", "travel"],
-      rating: 4,
-    },
-    {
-      id: "df09b6ed-28bd-4e0c-85a9-9320ec5179aa",
-      name: "Ethan Clark",
-      email: "ethanclark@example.com",
-      subject: "Team Building Event",
-      text: "Let's plan a team-building event for our department. Team cohesion and morale are vital to our success, and I believe a well-organized team-building event can be incredibly beneficial. I've done some research and have a few ideas for fun and engaging activities.\n\nPlease let me know your thoughts and availability. We want this event to be both enjoyable and productive.\n\nTogether, we'll strengthen our team and boost our performance.\n\nRegards, Ethan",
-      date: "2022-08-25T15:30:00",
-      read: false,
-      labels: ["meeting", "work"],
-      rating: 4,
-    },
-    {
-      id: "d67c1842-7f8b-4b4b-9be1-1b3b1ab4611d",
-      name: "Chloe Hall",
-      email: "chloehall@example.com",
-      subject: "Re: Budget Approval",
-      text: "The budget has been approved. We can proceed with the project. I'm delighted to inform you that our budget proposal has received the green light from the finance department. This is a significant milestone, and it means we can move forward with the project as planned.\n\nI've attached the finalized budget for your reference. Let's ensure that we stay on track and deliver the project on time and within budget.\n\nIt's an exciting time for us! Chloe",
-      date: "2022-08-10T16:45:00",
-      read: true,
-      labels: ["work", "budget"],
-      rating: 4,
-    },
-    {
-      id: "6c9a7f94-8329-4d70-95d3-51f68c186ae1",
-      name: "Samuel Turner",
-      email: "samuelturner@example.com",
-      subject: "Weekend Hike",
-      text: "Who's up for a weekend hike in the mountains? I've been craving some outdoor adventure, and a hike in the mountains sounds like the perfect escape. If you're up for the challenge, we can explore some scenic trails and enjoy the beauty of nature.\n\nI've done some research and have a few routes in mind.\n\nLet me know if you're interested, and we can plan the details.\n\nIt's sure to be a memorable experience! Samuel",
-      date: "2022-07-28T17:30:00",
-      read: false,
-      labels: ["personal"],
-      rating: 4,
-    },
-  ];
+  const { toast } = useToast();
   const { id: productId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [qty, setQty] = useState(1);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [allFeatures, setAllFeatures] = useState([]);
+
   const {
     data: product,
     isLoading: productLoading,
     error: productError,
     refetch,
   } = useGetProductDetailsQuery(productId);
+
+  const {
+    data: productFeatures,
+    isLoading: featuresLoading,
+    error: featuresError,
+  } = useGetProductFeaturesQuery(productId);
+
+  const [addReview, { isLoading: addReviewLoading, error: addReviewError }] =
+    useCreateProductReviewMutation();
+
   const { keyword, pageNumber } = useParams();
   const {
     data: products,
@@ -148,6 +114,54 @@ const ProductScreen = () => {
     dispatch(addToCart({ ...product, qty }));
     navigate("/cart");
   };
+
+  const handleRequestFeature = () => {
+    if (userInfo?.isAdmin) {
+      navigate(`/admin/allproducts/editProduct/${productId}`);
+    }
+    toast({
+      title: "Features requested!",
+      description:
+        "Please call or message us on: 1234567890 for product details! We will update product soon!",
+    });
+  };
+
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    if (userInfo?.name) {
+      try {
+        await addReview({ productId, comment, rating }).unwrap();
+        refetch();
+        setComment("");
+        setRating(0);
+        toast({
+          title: "Review Added!",
+        });
+      } catch (error) {
+        console.log(error);
+        toast({
+          title: "Failed to add review",
+          description: error,
+          variant: "destructive",
+        });
+      }
+    } else {
+      navigate("/login");
+    }
+  };
+
+  // useEffect(() => {
+  //   if (productFeatures?.length) {
+  //     console.log(productFeatures);
+  //     setAllFeatures(["test"]);
+  //   }
+  // }, [productFeatures]);
+
+  // useEffect(() => {
+  //   if (product) {
+  //     console.log(product);
+  //   }
+  // }, [product]);
 
   return (
     <div className="flex w-full flex-col gap-8">
@@ -164,26 +178,7 @@ const ProductScreen = () => {
                 className="w-[500px] h-auto"
               />
             </div>
-            {userInfo && userInfo?.isAdmin && (
-              <Badge
-                className="absolute left-[40rem]"
-                onClick={() =>
-                  navigate(`/admin/allproducts/editProduct/${productId}`)
-                }
-              >
-                <Pencil />
-              </Badge>
-            )}
             <div className="product-services flex justify-between">
-              {/* <div className="flex items-start gap-4 text-left">
-                <Headset className="hidden h-6 w-6 sm:flex" />
-                <div className="grid gap-1">
-                  <p className="text-xs font-medium leading-none">Reliable</p>
-                  <p className="text-xs text-muted-foreground">
-                    Reliable support on Hotline
-                  </p>
-                </div>
-              </div> */}
               <div className="flex items-start gap-4 text-left">
                 <ShieldCheck className="hidden h-6 w-6 sm:flex" />
                 <div className="grid gap-1">
@@ -202,15 +197,6 @@ const ProductScreen = () => {
                   </p>
                 </div>
               </div>
-              {/* <div className="flex items-start gap-4 text-left">
-                <IndianRupee className="hidden h-8 w-8 sm:flex" />
-                <div className="grid gap-1">
-                  <p className="text-sm font-medium leading-none">Payment</p>
-                  <p className="text-sm text-muted-foreground">
-                    Safe and secure payments
-                  </p>
-                </div>
-              </div> */}
             </div>
           </div>
           <div className="product-price-section flex-1 flex flex-col justify-between">
@@ -220,9 +206,6 @@ const ProductScreen = () => {
                   {Array.from({ length: 5 }, (product, index) => (
                     <Star
                       key={index}
-                      // className={`h-4 w-4 ${
-                      //   index < product?.rating ? "fill-current" : ""
-                      // }`}
                       className={`h-4 w-4 ${
                         index < product?.rating ? "fill-current" : ""
                       }`}
@@ -291,12 +274,25 @@ const ProductScreen = () => {
                   size="icon"
                   onClick={() => setQty(qty + 1)}
                   className="rounded-3xl"
+                  disabled={qty === product?.countInStock}
                 >
                   +
                 </Button>
               </div>
               <div className="buy-section flex gap-4 items-center">
-                <Button>Buy Now</Button>
+                {userInfo?.isAdmin ? (
+                  <Button
+                    onClick={() =>
+                      navigate(`/admin/allproducts/editProduct/${productId}`)
+                    }
+                    className="flex items-center gap-2"
+                  >
+                    <Pencil className="w-3 h-3" />
+                    Edit
+                  </Button>
+                ) : (
+                  <Button>Buy Now</Button>
+                )}
                 <Button
                   size="icon"
                   variant="outline"
@@ -310,297 +306,390 @@ const ProductScreen = () => {
           </div>
         </div>
         <div className="product-details-section flex">
-          <Tabs defaultValue="description" className="w-full">
-            <TabsList className="">
-              <TabsTrigger value="description">Description</TabsTrigger>
-              <TabsTrigger value="specification">Specification</TabsTrigger>
-              <TabsTrigger value="returns">Returns & Warranty</TabsTrigger>
-              <TabsTrigger value="reviews">Reviews</TabsTrigger>
-            </TabsList>
-            <TabsContent
-              value="description"
-              className="flex flex-col text-left"
-            >
-              <h3 className="font-bold text-xl my-4">Features & Overview</h3>
-              <p className="font-bold text-xl my-2 text-muted-foreground">
-                {product?.name}
-              </p>
-              <ul className="list-inside list-disc px-2 text-sm">
-                <li className="my-1">
-                  Powered by NVIDIA DLSS3, ultra-efficient Ada Lovelace arch,
-                  and full ray tracing
-                </li>
-                <li className="my-1">
-                  4th Generation Tensor Cores: Up to 4x performance with DLSS 3
-                  vs. brute-force rendering
-                </li>
-                <li className="my-1">
-                  3rd Generation RT Cores: Up to 2x ray tracing performance
-                </li>
-                <li className="my-1">
-                  OC edition: Boost Clock 2535 MHz (OC Mode)/ 2505 MHz (Default
-                  Mode)
-                </li>
-                <li className="my-1">
-                  Axial-tech fan design features a smaller fan hub that
-                  facilitates longer blades and a barrier ring that increases
-                  downward air pressure.
-                </li>
-                <li className="my-1">
-                  0dB technology lets you enjoy light gaming in relative
-                  silence.
-                </li>
-                <li className="my-1">
-                  Dual ball fan bearings can last up to twice as long as sleeve
-                  bearing designs.
-                </li>
-                <li className="my-1">
-                  A protective backplate secures components during
-                  transportation and installation.
-                </li>
-                <li className="my-1">
-                  Auto-Extreme Technology uses automation to enhance
-                  reliability.
-                </li>
-              </ul>
-            </TabsContent>
-            <TabsContent value="specification">
-              <Table className="rounded-md border">
-                <TableCaption>Specifications</TableCaption>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[100px] text-left">
-                      Specification
-                    </TableHead>
-                    <TableHead className="text-center">Details</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">
-                      MODEL
-                    </TableCell>
-                    <TableCell>DUAL-RTX4060-O8G-EVO</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">
-                      CHIPSET
-                    </TableCell>
-                    <TableCell>NVIDIA GEFORCE</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">GPU</TableCell>
-                    <TableCell>RTX 4060</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">
-                      PCI EXPRESS
-                    </TableCell>
-                    <TableCell>4.0</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">
-                      GPU BASE CLOCK
-                    </TableCell>
-                    <TableCell>1830 MHz</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">
-                      GPU BOOST CLOCK
-                    </TableCell>
-                    <TableCell>
-                      <ul>
-                        <li>OC mode : 2535 MHz</li>{" "}
-                        <li>Default mode : 2505 MHz (Boost)</li>
-                      </ul>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">
-                      MEMORY CLOCK
-                    </TableCell>
-                    <TableCell>17 Gbps</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">
-                      MEMORY SIZE
-                    </TableCell>
-                    <TableCell>8 GB</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">
-                      MEMORY INTERFACE
-                    </TableCell>
-                    <TableCell>128 Bit</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">
-                      MEMORY TYPE
-                    </TableCell>
-                    <TableCell>GDDR6</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">
-                      DIRECT X SUPPORT
-                    </TableCell>
-                    <TableCell>12 Ultimate</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">
-                      OPEN GL
-                    </TableCell>
-                    <TableCell>4.6</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">
-                      PORTS
-                    </TableCell>
-                    <TableCell>
-                      <ul>
-                        <li>Yes x 1 (Native HDMI 2.1a)</li>{" "}
-                        <li>Yes x 3 (Native DisplayPort 1.4a)</li>{" "}
-                        <li>HDCP Support Yes (2.3)</li>
-                      </ul>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">
-                      RESOLUTION
-                    </TableCell>
-                    <TableCell>7680 x 4320</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">
-                      GPU CORE (CUDA CORE)
-                    </TableCell>
-                    <TableCell>3072</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">
-                      POWER CONNECTORS
-                    </TableCell>
-                    <TableCell>1 x 8-pin</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium text-left">
-                      WARRANTY
-                    </TableCell>
-                    <TableCell>3 Years</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TabsContent>
-            <TabsContent value="returns">
-              <Card className="text-left">
-                <CardHeader>
-                  <CardTitle>Warraty & Returns</CardTitle>
-                  <CardDescription>
-                    Below listed is the warranty and returns policy
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-2">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Name</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-muted-foreground">
-                          {product?.name}
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Warranty</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-sm text-muted-foreground">
-                          Standard 3 Years warranty. Physical damage is not
-                          covered
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Returns</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-sm text-muted-foreground">
-                          7 days return policy if the product seal is not broken
-                          or product is not used.
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            <TabsContent value="reviews">
-              <Card className="text-left">
-                <CardHeader>
-                  <CardTitle>Reviews</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-6 mb-8">
-                    <div className="grid gap-3">
-                      <Label htmlFor="description">Add Review</Label>
-                      <Textarea
-                        id="description"
-                        defaultValue="Your review here ..."
-                        className="min-h-32"
-                      />
+          {(product?.category === "CPU" ||
+            product?.category === "GPU" ||
+            product?.category === "PSU" ||
+            product?.category === "RAM" ||
+            product?.category === "Motherboard" ||
+            product?.category === "CPU COOLER" ||
+            product?.category === "Cabinet" ||
+            product?.category === "SSD" ||
+            product?.category === "HDD") && (
+            <Tabs defaultValue="reviews" className="w-full">
+              <TabsList className={`grid w-full grid-cols-4`}>
+                <TabsTrigger value="description">Description</TabsTrigger>
+                <TabsTrigger value="specification">Specification</TabsTrigger>
+                <TabsTrigger value="returns">Returns & Warranty</TabsTrigger>
+                <TabsTrigger value="reviews">Reviews</TabsTrigger>
+              </TabsList>
+              <TabsContent
+                value="description"
+                className="flex flex-col text-left"
+              >
+                <h3 className="font-bold text-xl my-4">Features & Overview</h3>
+                <p className="font-bold text-xl my-2 text-muted-foreground">
+                  {product?.name}
+                </p>
+                {!productFeatures?.length ? (
+                  <Card className="h-[20vh] mt-2 flex flex-col justify-center items-center gap-2">
+                    <div className="text-xl font-bold">
+                      Features are yet to be added!
+                    </div>
+                    <Button onClick={handleRequestFeature}>
+                      {userInfo?.isAdmin ? "Edit Product" : "Request Feature"}
+                    </Button>
+                  </Card>
+                ) : (
+                  <ul className="list-inside list-disc px-2 text-sm">
+                    {productFeatures?.map((item, index) => (
+                      <li key={index} className="my-1">
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </TabsContent>
+              <TabsContent value="specification">
+                {product?.category === "GPU" && (
+                  <GPUSpecificationTable product={product} />
+                )}
+                {product?.category === "CPU" && (
+                  <CPUSpecificationTable product={product} />
+                )}
+                {product?.category === "Motherboard" && (
+                  <MoboSpecificationTable product={product} />
+                )}
+                {product?.category === "RAM" && (
+                  <RAMSpecificationTable product={product} />
+                )}
+                {product?.category === "CPU COOLER" && (
+                  <CoolerSpecificationTable product={product} />
+                )}
+                {product?.category === "PSU" && (
+                  <PSUSpecificationTable product={product} />
+                )}
+                {product?.category === "Cabinet" && (
+                  <PSUSpecificationTable product={product} />
+                )}
+                {(product?.category === "SSD" ||
+                  product?.category === "HDD") && (
+                  <MemorySpecificationTable product={product} />
+                )}
+              </TabsContent>
+              <TabsContent value="returns">
+                <Card className="text-left">
+                  <CardHeader>
+                    <CardTitle>Warraty & Returns</CardTitle>
+                    <CardDescription>
+                      Below listed is the warranty and returns policy
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid gap-2">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Name</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-muted-foreground">
+                            {product?.name}
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Warranty</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-sm text-muted-foreground">
+                            Standard{" "}
+                            {product?.warrantyDetails?.warrantyPeriod || "1"}{" "}
+                            Years warranty. Physical damage is not covered
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Returns</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-sm text-muted-foreground">
+                            {product?.warrantyDetails?.returnPeriod || "7"} days
+                            return policy if the product seal is not broken or
+                            product is not used.
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              <TabsContent value="reviews">
+                <Card className="text-left">
+                  <CardHeader>
+                    <CardTitle>Reviews</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid gap-6 mb-8">
+                      <div className="grid gap-3">
+                        <Label htmlFor="category">Rating</Label>
+                        <Select
+                          value={rating}
+                          onValueChange={(e) => setRating(e)}
+                        >
+                          <SelectTrigger
+                            id="category"
+                            aria-label="Select category"
+                          >
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="1">1 - Poor</SelectItem>
+                            <SelectItem value="2">2 - Fair...</SelectItem>
+                            <SelectItem value="3">3 - Good...</SelectItem>
+                            <SelectItem value="3">4 - Very Good...</SelectItem>
+                            <SelectItem value="5">5 - Excellent</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid gap-3">
+                        <Label htmlFor="comment">Write Review</Label>
+                        <Textarea
+                          id="comment"
+                          placeholder="Your review here ..."
+                          className="min-h-32"
+                          value={comment}
+                          onChange={(e) => setComment(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Button onClick={(e) => handleSubmitReview(e)}>
+                          Add Review
+                        </Button>
+                      </div>
                     </div>
                     <div>
-                      <Button>Add Review</Button>
+                      {product?.reviews?.length
+                        ? product?.reviews.map((item) => (
+                            <button
+                              key={item?.id}
+                              className="w-full flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent my-1"
+                            >
+                              <div className="flex w-full flex-col gap-1">
+                                <div className="flex items-center">
+                                  <div className="flex items-center gap-2">
+                                    <div className="font-semibold">
+                                      {item?.name}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="text-xs font-medium">
+                                  <div className="flex items-center text-primary">
+                                    {Array.from({ length: 5 }, (_, index) => (
+                                      <Star
+                                        key={index}
+                                        className={`h-4 w-4 ${
+                                          index < item?.rating
+                                            ? "fill-current"
+                                            : ""
+                                        }`}
+                                      />
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="line-clamp-2 text-xs text-muted-foreground">
+                                {item?.comment?.substring(0, 300)}
+                              </div>
+                            </button>
+                          ))
+                        : ""}
                     </div>
-                  </div>
-                  <div>
-                    {reviews.map((item) => (
-                      <button
-                        key={item.id}
-                        className="flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent my-1"
-                      >
-                        <div className="flex w-full flex-col gap-1">
-                          <div className="flex items-center">
-                            <div className="flex items-center gap-2">
-                              <div className="font-semibold">{item.name}</div>
-                              {!item.read && (
-                                <span className="flex h-2 w-2 rounded-full bg-blue-600" />
-                              )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          )}
+          {product?.category !== "CPU" &&
+            product?.category !== "GPU" &&
+            product?.category !== "PSU" &&
+            product?.category !== "RAM" &&
+            product?.category !== "Motherboard" &&
+            product?.category !== "CPU COOLER" &&
+            product?.category !== "Cabinet" &&
+            product?.category !== "SSD" &&
+            product?.category !== "HDD" && (
+              <Tabs defaultValue="reviews" className="w-full">
+                <TabsList className={`grid w-full grid-cols-3`}>
+                  <TabsTrigger value="description">Description</TabsTrigger>
+                  <TabsTrigger value="returns">Returns & Warranty</TabsTrigger>
+                  <TabsTrigger value="reviews">Reviews</TabsTrigger>
+                </TabsList>
+                <TabsContent
+                  value="description"
+                  className="flex flex-col text-left"
+                >
+                  <h3 className="font-bold text-xl my-4">
+                    Features & Overview
+                  </h3>
+                  <p className="font-bold text-xl my-2 text-muted-foreground">
+                    {product?.name}
+                  </p>
+                  {!productFeatures?.length ? (
+                    <Card className="h-[20vh] mt-2 flex flex-col justify-center items-center gap-2">
+                      <div className="text-xl font-bold">
+                        Features are yet to be added!
+                      </div>
+                      <Button onClick={handleRequestFeature}>
+                        {userInfo?.isAdmin ? "Edit Product" : "Request Feature"}
+                      </Button>
+                    </Card>
+                  ) : (
+                    <ul className="list-inside list-disc px-2 text-sm">
+                      {productFeatures?.map((item, index) => (
+                        <li key={index} className="my-1">
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </TabsContent>
+                <TabsContent value="returns">
+                  <Card className="text-left">
+                    <CardHeader>
+                      <CardTitle>Warraty & Returns</CardTitle>
+                      <CardDescription>
+                        Below listed is the warranty and returns policy
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid gap-2">
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Name</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="text-muted-foreground">
+                              {product?.name}
                             </div>
-                            <div className="ml-auto text-xs text-muted-foreground">
-                              {formatDistanceToNow(new Date(item.date), {
-                                addSuffix: true,
-                              })}
+                          </CardContent>
+                        </Card>
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Warranty</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="text-sm text-muted-foreground">
+                              Standard{" "}
+                              {product?.warrantyDetails?.warrantyPeriod || "1"}{" "}
+                              Years warranty. Physical damage is not covered
                             </div>
-                          </div>
-                          <div className="text-xs font-medium">
-                            <div className="flex items-center text-primary">
-                              {Array.from({ length: 5 }, (_, index) => (
-                                <Star
-                                  key={index}
-                                  className={`h-4 w-4 ${
-                                    index < item?.rating ? "fill-current" : ""
-                                  }`}
-                                  // className={`h-4 w-4 ${
-                                  //   index < 4 ? "fill-current" : ""
-                                  // }`}
-                                />
-                              ))}
+                          </CardContent>
+                        </Card>
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Returns</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="text-sm text-muted-foreground">
+                              {product?.warrantyDetails?.returnPeriod || "7"}{" "}
+                              days return policy if the product seal is not
+                              broken or product is not used.
                             </div>
-                          </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                <TabsContent value="reviews">
+                  <Card className="text-left">
+                    <CardHeader>
+                      <CardTitle>Reviews</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid gap-6 mb-8">
+                        <div className="grid gap-3">
+                          <Label htmlFor="category">Rating</Label>
+                          <Select
+                            value={rating}
+                            onValueChange={(e) => setRating(e)}
+                          >
+                            <SelectTrigger
+                              id="category"
+                              aria-label="Select category"
+                            >
+                              <SelectValue placeholder="Add Rating" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="1">1 - Poor</SelectItem>
+                              <SelectItem value="2">2 - Fair...</SelectItem>
+                              <SelectItem value="3">3 - Good...</SelectItem>
+                              <SelectItem value="3">
+                                4 - Very Good...
+                              </SelectItem>
+                              <SelectItem value="5">5 - Excellent</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
-                        <div className="line-clamp-2 text-xs text-muted-foreground">
-                          {item.text.substring(0, 300)}
+                        <div className="grid gap-3">
+                          <Label htmlFor="comment">Write Review</Label>
+                          <Textarea
+                            id="comment"
+                            placeholder="Your review here ..."
+                            className="min-h-32"
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                          />
                         </div>
-                      </button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+                        <div>
+                          <Button onClick={(e) => handleSubmitReview(e)}>
+                            Add Review
+                          </Button>
+                        </div>
+                      </div>
+                      <div>
+                        {product?.reviews?.length
+                          ? product?.reviews.map((item) => (
+                              <button
+                                key={item?.id}
+                                className="w-full flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent my-1"
+                              >
+                                <div className="flex w-full flex-col gap-1">
+                                  <div className="flex items-center">
+                                    <div className="flex items-center gap-2">
+                                      <div className="font-semibold">
+                                        {item?.name}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="text-xs font-medium">
+                                    <div className="flex items-center text-primary">
+                                      {Array.from({ length: 5 }, (_, index) => (
+                                        <Star
+                                          key={index}
+                                          className={`h-4 w-4 ${
+                                            index < item?.rating
+                                              ? "fill-current"
+                                              : ""
+                                          }`}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="line-clamp-2 text-xs text-muted-foreground">
+                                  {item?.comment?.substring(0, 300)}
+                                </div>
+                              </button>
+                            ))
+                          : ""}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            )}
         </div>
         <div className="related-products flex flex-col gap-8">
           <div className="flex w-full justify-between items-center">

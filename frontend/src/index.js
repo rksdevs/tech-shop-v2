@@ -26,6 +26,8 @@ import AdminCreateOffer from './Screens/Admin/AdminCreateOffer';
 import EditProduct from './Screens/Admin/EditProduct';
 import EditUser from './Screens/Admin/EditUser';
 import MyOrders from './Screens/MyOrders';
+import ContactUs from './Screens/ContactUs';
+import AboutUs from './Screens/AboutUs';
 
 const router = createBrowserRouter(createRoutesFromElements(
 <Route path='/' element={<App />}>
@@ -40,6 +42,8 @@ const router = createBrowserRouter(createRoutesFromElements(
   <Route path='/register' element={<Register />} />
   <Route path='/cart' element={<CartScreen />} />
   <Route path='/prebuilt-pc' element={<PrebuiltPCScreen />} />
+  <Route path='/contactus' element={<ContactUs />} />
+  <Route path='/aboutus' element={<AboutUs />} />
 
   <Route path='' element={<PrivateRoute />}>
     <Route path='/myaccount' element={<AccountSettings />} />

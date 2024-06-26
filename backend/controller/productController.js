@@ -83,7 +83,7 @@ const createProduct = asyncHandler(async(req,res)=>{
 //@route  PUT /api/products/:id
 //@access Private/Admin
 const updateProduct = asyncHandler(async(req,res)=>{
-    const {name, price, brand, category, sku, image, countInStock, description, productDiscount, socketType, powerConsumption, chipsetModel, formFactor, memorySlots, ramType, ramFormFactor} = req.body;
+    const {name, price, brand, category, sku, image, countInStock, description, productDiscount, socketType, powerConsumption, chipsetModel, formFactor, memorySlots, ramType, ramFormFactor, warrantyDetails, featureDetails, specificationDetails} = req.body;
 
     const product = await Product.findById(req.params.id);
 
@@ -104,6 +104,10 @@ const updateProduct = asyncHandler(async(req,res)=>{
         product.compatibilityDetails.ramType = ramType;
         product.compatibilityDetails.ramFormFactor = ramFormFactor;
         product.productDiscount = productDiscount;
+
+        product.warrantyDetails = warrantyDetails;
+        product.specificationDetails = specificationDetails;
+        product.featureDetails = featureDetails;
 
         if(productDiscount > 0) {
             product.priceAfterDiscount = product.price - (product.price* product.productDiscount/100)
@@ -387,4 +391,64 @@ const getAllProductsAdmin = asyncHandler(async(req,res)=>{
     }
 })
 
-export {getAllProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductsByCategory, updateProductStock, createProductReview, getTopRatedProducts, getAllCategories, getAllBrands, getProductsByBrands, getLatestProducts, getFilteredProducts, getAllProductsAdmin}
+const addAllProductsWarranty = asyncHandler(async(req,res)=>{
+    // const pageSize = process.env.PAGINATION_LIMIT;
+    // const page = Number(req.query.pageNumber) || 1;
+
+    // const keyword = req.query.keyword ? {name: {$regex : req.query.keyword, $options: 'i'}} : {};
+
+    // const count = await Product.countDocuments({...keyword});
+    // let products;
+    // if(req.query.pageNumber) {
+    //     products = await Product.find({...keyword}).limit(pageSize).skip(pageSize * (page -1));  
+    // } else {
+    //     products = await Product.find();
+    // }
+    const products = await Product.find()
+    if (products) {
+        for (const eachProduct of products) {
+            const product = await Product.findById(eachProduct._id);
+            if (product) {
+                product.warrantyDetails.warrantyPeriod = "1";
+                product.warrantyDetails.returnPeriod = "7";
+                await product.save();
+            } else {
+                res.status(404);
+                throw new Error(`Product with ID ${orderItem.product} not found`);
+            }
+        }
+        // return res.json(products)
+    } else {
+        res.status(404);
+        throw new Error ('Resources not found! Here is a pancakce..')
+    }
+})
+
+//@desc Fetch all products
+//@route GET /api/products
+//@access Public
+const getProductFeatureDetails= asyncHandler(async(req,res)=>{
+    const productId = req.params.id;
+    // const pageSize = process.env.PAGINATION_LIMIT;
+    // const page = Number(req.query.pageNumber) || 1;
+
+    // const keyword = req.query.keyword ? {name: {$regex : req.query.keyword, $options: 'i'}} : {};
+
+    // const count = await Product.countDocuments({...keyword});
+    // let products;
+    // if(req.query.pageNumber) {
+    //     products = await Product.find({...keyword}).limit(pageSize).skip(pageSize * (page -1));  
+    // } else {
+    //     products = await Product.find();
+    // }
+    const product = await Product.findById(productId)
+    if (product) {
+        let updatedFeatures = Object.values(product?.featureDetails).filter((item)=>item !== "" && item !== null && item !== undefined);
+        return res.json(updatedFeatures)
+    } else {
+        res.status(404);
+        throw new Error ('Resources not found! Here is a pancakce..')
+    }
+})
+
+export {getAllProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductsByCategory, updateProductStock, createProductReview, getTopRatedProducts, getAllCategories, getAllBrands, getProductsByBrands, getLatestProducts, getFilteredProducts, getAllProductsAdmin, addAllProductsWarranty, getProductFeatureDetails}
