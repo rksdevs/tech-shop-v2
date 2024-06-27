@@ -122,7 +122,14 @@ export const productApiSlice = apiSlice.injectEndpoints({
             providesTags: ['Product'],
             keepUnusedDataFor: 5
         }),
+        getProductsByCategoryWithoutPage: builder.query({
+            query: (category) =>({
+                url: `${PRODUCTS_URL}/productWithoutPage/${category}`,
+            }),
+            providesTags: ['Product'],
+            keepUnusedDataFor: 5
+        }),
     })
 })
 
-export const {useGetProductsQuery, useGetProductsByBrandQuery, useGetProductDetailsQuery, useCreateProductMutation, useUpdateProductMutation, useUploadProductImageMutation, useDeleteProductMutation, useGetProductsByCategoryQuery, useUpdateProductStockMutation, useCreateProductReviewMutation, useGetTopProductsQuery, useGetAllCategoriesQuery, useGetAllBrandsQuery, useGetLatestProductsQuery, useFilteredProductListMutation, useGetAllProductsAdminQuery, useGetProductFeaturesQuery} = productApiSlice;
+export const {useGetProductsQuery, useGetProductsByBrandQuery, useGetProductDetailsQuery, useCreateProductMutation, useUpdateProductMutation, useUploadProductImageMutation, useDeleteProductMutation, useGetProductsByCategoryQuery, useUpdateProductStockMutation, useCreateProductReviewMutation, useGetTopProductsQuery, useGetAllCategoriesQuery, useGetAllBrandsQuery, useGetLatestProductsQuery, useFilteredProductListMutation, useGetAllProductsAdminQuery, useGetProductFeaturesQuery, useGetProductsByCategoryWithoutPageQuery} = productApiSlice;

@@ -383,7 +383,7 @@ if (query.$and.length === 0) {
 
 //@desc Fetch all products
 //@route GET /api/products
-//@access Public
+//@access Admin
 const getAllProductsAdmin = asyncHandler(async(req,res)=>{
     // const pageSize = process.env.PAGINATION_LIMIT;
     // const page = Number(req.query.pageNumber) || 1;
@@ -466,4 +466,23 @@ const getProductFeatureDetails= asyncHandler(async(req,res)=>{
     }
 })
 
-export {getAllProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductsByCategory, updateProductStock, createProductReview, getTopRatedProducts, getAllCategories, getAllBrands, getProductsByBrands, getLatestProducts, getFilteredProducts, getAllProductsAdmin, addAllProductsWarranty, getProductFeatureDetails}
+//@desc Fetch all products
+//@route GET /api/products
+//@access Admin
+const getProductsByCategoryWithoutPage = asyncHandler(async(req,res)=>{
+    const categoryToSearch = req.params.category;
+    
+    try {
+        const products = await Product.find({category: categoryToSearch})
+        if (products) {
+            return res.json(products)
+        } else {
+            res.status(404);
+            throw new Error ('Resources not found! Here is a pancakce..')
+        }
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+export {getAllProducts, getProductById, createProduct,getProductsByCategoryWithoutPage, updateProduct, deleteProduct, getProductsByCategory, updateProductStock, createProductReview, getTopRatedProducts, getAllCategories, getAllBrands, getProductsByBrands, getLatestProducts, getFilteredProducts, getAllProductsAdmin, addAllProductsWarranty, getProductFeatureDetails}

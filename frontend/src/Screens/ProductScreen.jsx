@@ -177,15 +177,15 @@ const ProductScreen = () => {
   //   }
   // }, [productFeatures]);
 
-  useEffect(() => {
-    if (productsByCategory?.products?.length) {
-      setTrimmedProductsByCategory(productsByCategory?.products?.slice(0, 15));
-    }
+  // useEffect(() => {
+  //   if (productsByCategory?.products?.length) {
+  //     setTrimmedProductsByCategory(productsByCategory?.products?.slice(0, 15));
+  //   }
 
-    if (productsByBrand?.length) {
-      setTrimmedProductsByBrand(productsByBrand?.products?.slice(0, 15));
-    }
-  }, [productsByCategory, productsByBrand]);
+  //   if (productsByBrand?.length) {
+  //     setTrimmedProductsByBrand(productsByBrand?.products?.slice(0, 15));
+  //   }
+  // }, [productsByCategory, productsByBrand]);
 
   return (
     <div className="flex w-full flex-col gap-8">

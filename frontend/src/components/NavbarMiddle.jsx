@@ -94,6 +94,11 @@ export function NavbarMiddle() {
                   >
                     Users
                   </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => navigate("/admin/configurePrebuiltPc")}
+                  >
+                    Configure Prebuilt PCs
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}

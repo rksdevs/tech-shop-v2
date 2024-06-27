@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import { getAllProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductsByCategory, updateProductStock, createProductReview, getTopRatedProducts, getAllCategories, getAllBrands, getProductsByBrands, getLatestProducts, getFilteredProducts, getAllProductsAdmin, addAllProductsWarranty, getProductFeatureDetails } from '../controller/productController.js';
+import { getAllProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductsByCategory, updateProductStock, createProductReview, getTopRatedProducts, getAllCategories, getAllBrands, getProductsByBrands, getLatestProducts, getFilteredProducts, getAllProductsAdmin, addAllProductsWarranty, getProductFeatureDetails, getProductsByCategoryWithoutPage } from '../controller/productController.js';
 import {admin, protect} from '../middlewares/authMiddleware.js';
 
 router.get("/", getAllProducts);
@@ -17,7 +17,7 @@ router.get("/allCategories", getAllCategories);
 
 router.get("/allBrands", getAllBrands);
 
-router.get("/:id", getProductById)
+
 
 router.get("/category/:category", getProductsByCategory)
 
@@ -37,7 +37,9 @@ router.post("/updateall/warranty", protect, admin, addAllProductsWarranty);
 
 router.get("/product/features/:id", getProductFeatureDetails);
 
-// router.get("/allBrands/brand/searchBrand/:brand", getProductsByBrands);
+router.get("/productWithoutPage/:category", protect, admin, getProductsByCategoryWithoutPage);
+
+router.get("/:id", getProductById)
 
 
 
