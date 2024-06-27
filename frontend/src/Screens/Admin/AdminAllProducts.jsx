@@ -262,7 +262,7 @@ const AdminAllProducts = () => {
       console.log(error);
       toast({
         title: "Added new sample product",
-        description: error,
+        description: error?.message || error?.data?.message,
         variant: "destructive",
       });
     }

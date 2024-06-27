@@ -419,7 +419,7 @@ function EditProduct() {
       console.log(error);
       toast({
         title: `Product Updated Failed!`,
-        description: error,
+        description: error?.message || error?.data?.message,
         variant: "destructive",
       });
     }

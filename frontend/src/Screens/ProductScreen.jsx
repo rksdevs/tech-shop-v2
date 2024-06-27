@@ -3,6 +3,8 @@ import {
   useCreateProductReviewMutation,
   useGetProductDetailsQuery,
   useGetProductFeaturesQuery,
+  useGetProductsByBrandQuery,
+  useGetProductsByCategoryQuery,
 } from "../Features/productApiSlice";
 import ProductImg from "../components/assets/images/Designer.png";
 import React, { useEffect, useState } from "react";
@@ -73,6 +75,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
+import SameCategoryProducts from "../components/SameCategoryProducts";
+import SameBrandProducts from "../components/SameBrandProducts";
 
 const ProductScreen = () => {
   const { toast } = useToast();
@@ -83,6 +87,10 @@ const ProductScreen = () => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [allFeatures, setAllFeatures] = useState([]);
+  const [trimmedProductsByCategory, setTrimmedProductsByCategory] = useState(
+    []
+  );
+  const [trimmedProductsByBrand, setTrimmedProductsByBrand] = useState([]);
 
   const {
     data: product,
@@ -90,6 +98,18 @@ const ProductScreen = () => {
     error: productError,
     refetch,
   } = useGetProductDetailsQuery(productId);
+
+  const {
+    data: productsByCategory,
+    isLoading: productsByCategoryLoading,
+    error: productsByCategoryError,
+  } = useGetProductsByCategoryQuery(product?.category);
+
+  const {
+    data: productsByBrand,
+    isLoading: productsByBrandLoading,
+    error: productsByBrandError,
+  } = useGetProductsByBrandQuery(product?.brand);
 
   const {
     data: productFeatures,
@@ -157,11 +177,15 @@ const ProductScreen = () => {
   //   }
   // }, [productFeatures]);
 
-  // useEffect(() => {
-  //   if (product) {
-  //     console.log(product);
-  //   }
-  // }, [product]);
+  useEffect(() => {
+    if (productsByCategory?.products?.length) {
+      setTrimmedProductsByCategory(productsByCategory?.products?.slice(0, 15));
+    }
+
+    if (productsByBrand?.length) {
+      setTrimmedProductsByBrand(productsByBrand?.products?.slice(0, 15));
+    }
+  }, [productsByCategory, productsByBrand]);
 
   return (
     <div className="flex w-full flex-col gap-8">
@@ -691,7 +715,8 @@ const ProductScreen = () => {
               </Tabs>
             )}
         </div>
-        <div className="related-products flex flex-col gap-8">
+        <SameCategoryProducts category={product?.category} />
+        {/* <div className="related-products flex flex-col gap-8">
           <div className="flex w-full justify-between items-center">
             <div>
               <h3 className="text-[18px] font-[700]">Related Products</h3>
@@ -702,7 +727,7 @@ const ProductScreen = () => {
           </div>
           <Carousel className="w-full">
             <CarouselContent className="-ml-1 h-[40vh] pt-5">
-              {products?.products?.map((product, index) => (
+              {trimmedProductsByCategory?.map((product, index) => (
                 <CarouselItem
                   key={index}
                   className="pl-1 md:basis-1/2 lg:basis-1/5"
@@ -723,8 +748,8 @@ const ProductScreen = () => {
             <CarouselPrevious className="left-[-15px]" />
             <CarouselNext className="right-[-15px]" />
           </Carousel>
-        </div>
-        <div className="same-brand flex flex-col gap-8">
+        </div> */}
+        {/* <div className="same-brand flex flex-col gap-8">
           <div className="flex w-full justify-between items-center">
             <div>
               <h3 className="text-[18px] font-[700]">
@@ -737,7 +762,7 @@ const ProductScreen = () => {
           </div>
           <Carousel className="w-full">
             <CarouselContent className="-ml-1 h-[40vh] pt-5">
-              {products?.products?.map((product, index) => (
+              {trimmedProductsByBrand?.map((product, index) => (
                 <CarouselItem
                   key={index}
                   className="pl-1 md:basis-1/2 lg:basis-1/5"
@@ -758,7 +783,8 @@ const ProductScreen = () => {
             <CarouselPrevious className="left-[-15px]" />
             <CarouselNext className="right-[-15px]" />
           </Carousel>
-        </div>
+        </div> */}
+        <SameBrandProducts brand={product?.brand} />
       </Container>
     </div>
   );

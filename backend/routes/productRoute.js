@@ -37,6 +37,8 @@ router.post("/updateall/warranty", protect, admin, addAllProductsWarranty);
 
 router.get("/product/features/:id", getProductFeatureDetails);
 
+// router.get("/allBrands/brand/searchBrand/:brand", getProductsByBrands);
+
 
 
 export default router;

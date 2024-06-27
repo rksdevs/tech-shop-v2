@@ -27,8 +27,8 @@ const createOffer = asyncHandler(async(req, res)=> {
 });
 
 const updateOffer = asyncHandler(async(req, res)=> {
-    const {offerName, offerDiscount, status} = req.body;
-    const offerId = req.params.id;
+    const {offerName, offerDiscount, status, offerId} = req.body;
+    // const offerId = req.params.id;
     try {
         const offer = await Offer.findById(offerId);
         if(!offer) {

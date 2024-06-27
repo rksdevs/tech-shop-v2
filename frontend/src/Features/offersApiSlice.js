@@ -22,7 +22,7 @@ const offersApiSlice = apiSlice.injectEndpoints({
             query: (data) => ({
                 url: `${OFFERS_URL}/updateOffer/${data.offerId}`,
                 method: 'PUT',
-                body: {offerName: data.offerName, offerDiscount: data.offerDiscount, status: data.status}
+                body: {offerName: data.offerName, offerDiscount: data.offerDiscount, status: data.status, offerId: data.offerId}
             }),
             invalidatesTags: ['Offer']
         }),

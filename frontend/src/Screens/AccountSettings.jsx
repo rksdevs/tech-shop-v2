@@ -75,7 +75,7 @@ const AccountSettings = () => {
       console.log(error);
       toast({
         title: "Failed to update profile!",
-        description: error,
+        description: error?.message || error?.data?.message,
         variant: "destructive",
       });
     }

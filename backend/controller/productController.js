@@ -292,12 +292,27 @@ const getAllBrands = asyncHandler(async(req, res) => {
 //@access Public
 const getProductsByBrands = asyncHandler(async(req,res)=>{
     const brandToSearch = req.params.brand;
-    const product = await Product.find({brand: brandToSearch})
-    if(product.length > 0) {
-        res.status(200).json(product);
+    const pageSize = process.env.PAGINATION_LIMIT;
+    const page = Number(req.query.pageNumber) || 1;
+    try {
+    //     const count = await Product.countDocuments({brand: brandToSearch});
+    // console.log(count)
+    // let products;
+    // if(req.query.pageNumber) {
+    //     products = await Product.find({...keyword}).limit(pageSize).skip(pageSize * (page -1));  
+    // } else {
+    //     products = await Product.find();
+    // }
+    const products = await Product.find({brand: req.params.brand});
+    if (products) {
+        return res.json({products})
     } else {
         res.status(404);
-        throw new Error("Brand not found! Here is a pancake..")
+        throw new Error ("Brand not found! Here is a pancake..")
+    }
+    } catch (error) {
+        res.status(404);
+        throw new Error ("Brand not found! Here is a pancake..")
     }
 })
 

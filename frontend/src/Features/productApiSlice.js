@@ -115,7 +115,14 @@ export const productApiSlice = apiSlice.injectEndpoints({
             }),
             keepUnusedDataFor: 5
         }),
+        getProductsByBrand: builder.query({
+            query: (brand) =>({
+                url: `${PRODUCTS_URL}/brand/${brand}`,
+            }),
+            providesTags: ['Product'],
+            keepUnusedDataFor: 5
+        }),
     })
 })
 
-export const {useGetProductsQuery, useGetProductDetailsQuery, useCreateProductMutation, useUpdateProductMutation, useUploadProductImageMutation, useDeleteProductMutation, useGetProductsByCategoryQuery, useUpdateProductStockMutation, useCreateProductReviewMutation, useGetTopProductsQuery, useGetAllCategoriesQuery, useGetAllBrandsQuery, useGetLatestProductsQuery, useFilteredProductListMutation, useGetAllProductsAdminQuery, useGetProductFeaturesQuery} = productApiSlice;
+export const {useGetProductsQuery, useGetProductsByBrandQuery, useGetProductDetailsQuery, useCreateProductMutation, useUpdateProductMutation, useUploadProductImageMutation, useDeleteProductMutation, useGetProductsByCategoryQuery, useUpdateProductStockMutation, useCreateProductReviewMutation, useGetTopProductsQuery, useGetAllCategoriesQuery, useGetAllBrandsQuery, useGetLatestProductsQuery, useFilteredProductListMutation, useGetAllProductsAdminQuery, useGetProductFeaturesQuery} = productApiSlice;

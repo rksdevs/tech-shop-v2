@@ -9,7 +9,12 @@ import {
   Share2,
   CopyIcon,
 } from "lucide-react";
-import { Card, CardContent, CardHeader } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import ProductImg from "../components/assets/images/Designer.png";
 import { useRef, useState } from "react";
 import { Button } from "../components/ui/button";
@@ -36,6 +41,7 @@ import {
 import { Label } from "../components/ui/label";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useToast } from "../components/ui/use-toast";
+import TopProducts from "../components/TopProducts";
 
 const CartScreen = () => {
   const { cartItems, totalPrice } = useSelector((state) => state.cart);
@@ -198,73 +204,47 @@ const CartScreen = () => {
                 </div>
               ))
             ) : (
-              <>No items in cart</>
+              <>
+                <Card className="h-[20vh] flex flex-col gap-4 justify-center items-center">
+                  <CardTitle>No items in your cart!</CardTitle>
+                  <CardContent className="flex">
+                    <Button onClick={() => navigate("/allproducts")}>
+                      Continue Shopping
+                    </Button>
+                  </CardContent>
+                </Card>
+                <TopProducts />
+              </>
             )}
-            {/* <div className="cart-content">
-              <Card className="flex">
-                <CardHeader className="flex w-1/2 flex-row text-left">
-                  <div className="product-img">
-                    <img
-                      src={ProductImg}
-                      alt="Product img"
-                      className="w-[250px]"
-                    />
-                  </div>
-                  <div className="product-name flex flex-col">
-                    <p className="px-8 font-bold text-muted-foreground">
-                      Processor
-                    </p>
-                    <h3 className="px-8 font-extrabold text-l">
-                      Amd Ryzen 3 3200G Processor With Radeon Rx Vega 8 Graphics
-                      (YD3200C5FHBOX)
-                    </h3>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex flex-grow flex-1 justify-center items-center">
-                  <div className="product-price w-full font-bold">₹ 30000</div>
-                  <div className="product-qty w-full flex gap-2 justify-center items-center">
-                    <Select>
-                      <SelectTrigger className="w-[75px]">
-                        <SelectValue defaultValue={1} placeholder="Qty" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={1}>1</SelectItem>
-                        <SelectItem value={2}>2</SelectItem>
-                        <SelectItem value={3}>3</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="product-total w-full font-bold">₹ 30000</div>
-                  <div className="product-actions w-full">
-                    <div className="flex justify-center gap-4">
-                      <Trash2 />
-                      <Share2 />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div> */}
           </div>
         </div>
-        <div className="total-container flex items-center justify-between py-4 px-2 bg-muted rounded-lg">
-          <div className="flex max-w-sm items-center space-x-2">
-            <Input type="email" placeholder="Enter coupon" />
-            <Button type="submit">Apply Coupon</Button>
+        {cartItems.length ? (
+          <div className="total-container flex items-center justify-between py-4 px-2 bg-muted rounded-lg">
+            <div className="flex max-w-sm items-center space-x-2">
+              <Input type="email" placeholder="Enter coupon" />
+              <Button type="submit">Apply Coupon</Button>
+            </div>
+            <div className="flex gap-2">
+              <div className="text-l font-bold">Total</div>
+              <div className="text-l font-bold text-primary">
+                ₹ {totalPrice}
+              </div>
+            </div>
+            <div className="flex gap-1">
+              <Button
+                variant="outline"
+                onClick={() => navigate("/allproducts")}
+              >
+                Continue Shopping
+              </Button>
+              <Button onClick={() => navigate("/checkout")}>
+                Proceed to Buy
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <div className="text-l font-bold">Total</div>
-            <div className="text-l font-bold text-primary">₹ {totalPrice}</div>
-          </div>
-          <div className="flex gap-1">
-            <Button variant="outline" onClick={() => navigate("/allproducts")}>
-              Continue Shopping
-            </Button>
-            <Button onClick={() => navigate("/checkout")}>
-              Proceed to Buy
-            </Button>
-          </div>
-        </div>
-
+        ) : (
+          ""
+        )}
         <div className="about-service flex justify-between gap-8 hidden">
           <div className="flex items-start gap-4 text-left">
             <Headset className="hidden h-8 w-8 sm:flex" />
