@@ -79,16 +79,16 @@ import {
   addConfigureRam,
   addConfigureSsd,
 } from "../../Features/pcConfigureSlice";
-import { Skeleton } from "../../components/ui/skeleton";
+import { Skeleton } from "../ui/skeleton";
 
-const RAMTable = () => {
+const HeadsetTable = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const {
-    data: allRAM,
+    data: allHeadsets,
     isLoading: allProcessorLoading,
     error: allProcessorError,
-  } = useGetProductsByCategoryWithoutPageQuery("RAM");
+  } = useGetProductsByCategoryWithoutPageQuery("Headset");
 
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -96,8 +96,8 @@ const RAMTable = () => {
   });
 
   const allProductsData = useMemo(() => {
-    return allRAM || [];
-  }, [allRAM]);
+    return allHeadsets || [];
+  }, [allHeadsets]);
 
   const location = useLocation();
   const isPcConfigurePage = location.pathname.includes(
@@ -458,4 +458,4 @@ const RAMTable = () => {
   );
 };
 
-export default RAMTable;
+export default HeadsetTable;

@@ -1,8 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  useGetProductsByCategoryQuery,
-  useGetProductsByCategoryWithoutPageQuery,
-} from "../../Features/productApiSlice";
+import { useMemo, useState } from "react";
 import sampleImg from "../../components/assets/images/psu-1.png";
 import {
   useReactTable,
@@ -10,26 +6,16 @@ import {
   getCoreRowModel,
   createColumnHelper,
   getPaginationRowModel,
-  SortingState,
-  VisibilityState,
   getFilteredRowModel,
   getSortedRowModel,
 } from "@tanstack/react-table";
 import { Button } from "../ui/button";
 import { CaretSortIcon } from "@radix-ui/react-icons";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { MoreHorizontal, Plus } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Container from "../Container";
 import { Input } from "../ui/input";
-import { Card, CardFooter } from "../ui/card";
+import { Card, CardContent, CardFooter } from "../ui/card";
 import {
   Table,
   TableBody,
@@ -39,178 +25,69 @@ import {
   TableRow,
 } from "../ui/table";
 import { Pagination } from "../ui/pagination";
+import { Skeleton } from "../ui/skeleton";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+  useDeletePrebuiltPcMutation,
+  useGetAllPrebuiltPcsQuery,
+} from "../../Features/pcConfigureApiSlice";
+import { useToast } from "../ui/use-toast";
 
-import {
-  addCabinet,
-  addCpu,
-  addGpu,
-  addCoolingSystem,
-  addHdd,
-  addHeadphone,
-  addKeyboard,
-  addMonitor,
-  addMotherboard,
-  addMouse,
-  addMousepad,
-  addPsu,
-  addRam,
-  addSsd,
-} from "../../Features/pcBuilderSlice";
-import {
-  addConfigureCabinet,
-  addConfigureCpu,
-  addConfigureGpu,
-  addConfigureCoolingSystem,
-  addConfigureHdd,
-  addConfigureHeadphone,
-  addConfigureKeyboard,
-  addConfigureMonitor,
-  addConfigureMotherboard,
-  addConfigureMouse,
-  addConfigureMousepad,
-  addConfigurePsu,
-  addConfigureRam,
-  addConfigureSsd,
-} from "../../Features/pcConfigureSlice";
-import { Skeleton } from "../../components/ui/skeleton";
-
-const RAMTable = () => {
+const AllPrebuiltPcTable = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const { toast } = useToast();
   const {
-    data: allRAM,
-    isLoading: allProcessorLoading,
-    error: allProcessorError,
-  } = useGetProductsByCategoryWithoutPageQuery("RAM");
+    data: allPrebuiltPcs,
+    isLoading: allPrebuiltPcsLoading,
+    error: allPrebuiltPcsError,
+    refetch,
+  } = useGetAllPrebuiltPcsQuery();
+
+  const [
+    deletePrebuiltPc,
+    { isLoading: deletePrebuiltPcLoading, error: deletePrebuiltPcError },
+  ] = useDeletePrebuiltPcMutation();
 
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: 7,
+    pageSize: 5,
   });
 
   const allProductsData = useMemo(() => {
-    return allRAM || [];
-  }, [allRAM]);
+    return allPrebuiltPcs || [];
+  }, [allPrebuiltPcs]);
 
-  const location = useLocation();
-  const isPcConfigurePage = location.pathname.includes(
-    "admin/configurePrebuiltPc"
-  );
-  const handleAddItem = (product, qty = 1) => {
-    if (isPcConfigurePage) {
-      switch (product.category) {
-        case "CPU":
-          dispatch(addConfigureCpu({ ...product, qty }));
-          break;
-        case "Motherboard":
-          dispatch(addConfigureMotherboard({ ...product, qty }));
-          break;
-        case "CPU COOLER":
-          dispatch(addConfigureCoolingSystem({ ...product, qty }));
-          break;
-        case "RAM":
-          dispatch(addConfigureRam({ ...product, qty }));
-          break;
-        case "SSD":
-          dispatch(addConfigureSsd({ ...product, qty }));
-          break;
-        case "HDD":
-          dispatch(addConfigureHdd({ ...product, qty }));
-          break;
-        case "GPU":
-          dispatch(addConfigureGpu({ ...product, qty }));
-          break;
-        case "PSU":
-          dispatch(addConfigurePsu({ ...product, qty }));
-          break;
-        case "Cabinet":
-          dispatch(addConfigureCabinet({ ...product, qty }));
-          break;
-        case "Monitor":
-          dispatch(addConfigureMonitor({ ...product, qty }));
-          break;
-        case "Keyboard":
-          dispatch(addConfigureKeyboard({ ...product, qty }));
-          break;
-        case "Mouse":
-          dispatch(addConfigureMouse({ ...product, qty }));
-          break;
-        case "Mousepad":
-          dispatch(addConfigureMousepad({ ...product, qty }));
-          break;
-        case "Headphone":
-          dispatch(addConfigureHeadphone({ ...product, qty }));
-          break;
-        default:
-          break;
-      }
-    } else {
-      switch (product.category) {
-        case "CPU":
-          dispatch(addCpu({ ...product, qty }));
-          break;
-        case "Motherboard":
-          dispatch(addMotherboard({ ...product, qty }));
-          break;
-        case "CPU COOLER":
-          dispatch(addCoolingSystem({ ...product, qty }));
-          break;
-        case "RAM":
-          dispatch(addRam({ ...product, qty }));
-          break;
-        case "SSD":
-          dispatch(addSsd({ ...product, qty }));
-          break;
-        case "HDD":
-          dispatch(addHdd({ ...product, qty }));
-          break;
-        case "GPU":
-          dispatch(addGpu({ ...product, qty }));
-          break;
-        case "PSU":
-          dispatch(addPsu({ ...product, qty }));
-          break;
-        case "Cabinet":
-          dispatch(addCabinet({ ...product, qty }));
-          break;
-        case "Monitor":
-          dispatch(addMonitor({ ...product, qty }));
-          break;
-        case "Keyboard":
-          dispatch(addKeyboard({ ...product, qty }));
-          break;
-        case "Mouse":
-          dispatch(addMouse({ ...product, qty }));
-          break;
-        case "Mousepad":
-          dispatch(addMousepad({ ...product, qty }));
-          break;
-        case "Headphone":
-          dispatch(addHeadphone({ ...product, qty }));
-          break;
-        default:
-          break;
-      }
+  const handleDeleteItem = async (e) => {
+    // e.preventDefault();
+    try {
+      await deletePrebuiltPc(e).unwrap();
+      refetch();
+      toast({
+        title: "Deleted Prebuilt PC!",
+      });
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Can not delete Prebuilt PC!",
+        description: error?.message || error?.data?.message,
+        variant: "destructive",
+      });
     }
   };
 
   const columnHelper = createColumnHelper();
   /** @type import('@tanstack/react-table').columnDef<any>*/
   const columns = [
-    columnHelper.accessor((row) => row.image, {
+    columnHelper.accessor((row) => row.pcImage, {
       id: "Product",
       cell: (info) => (
-        <img src={sampleImg} alt="product-img" className="w-[40px] h-[40px]" />
+        <img
+          src={sampleImg}
+          alt="product-img"
+          className="w-[120px] h-[120px]"
+        />
       ),
     }),
-    columnHelper.accessor((row) => row.name, {
+    columnHelper.accessor((row) => row.pcName, {
       accessorKey: "name",
       header: ({ column }) => {
         return (
@@ -231,11 +108,26 @@ const RAMTable = () => {
         </p>
       ),
     }),
-    {
-      accessorKey: "brand",
-      header: "Brand",
-    },
-    columnHelper.accessor((row) => row.price, {
+    columnHelper.accessor((row) => Object.values(row.pcComponents), {
+      id: "Components",
+      cell: (info) => (
+        <ul key={info.getValue()._id}>
+          {info
+            .getValue()
+            .filter((item) => item.hasOwnProperty("name"))
+            .map((item, index) => (
+              <li key={index} className="mb-2">
+                <span className="text-muted-foreground font-semibold">1 x</span>{" "}
+                <span className="text-sm">
+                  {" "}
+                  {item?.name?.split(" ").slice(0, 7).join(" ") || "NA"}
+                </span>
+              </li>
+            ))}
+        </ul>
+      ),
+    }),
+    columnHelper.accessor((row) => row.pcTotalPrice, {
       accessorKey: "price",
       header: ({ column }) => {
         return (
@@ -255,35 +147,32 @@ const RAMTable = () => {
         </p>
       ),
     }),
+    {
+      accessorKey: "countInStock",
+      header: "Stock",
+    },
     columnHelper.accessor((row) => row, {
-      id: "Actions",
+      id: "Update",
       cell: (info) => (
-        // <Button
-        //   size="sm"
-        //   variant="outline"
-        //   onClick={() => handleAddItem(info.getValue())}
-        // >
-        //   Add
-        // </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button aria-haspopup="true" size="icon" variant="ghost">
-              <MoreHorizontal className="h-4 w-4" />
-              <span className="sr-only">Toggle menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigate(`/product/${info.getValue()._id}`)}
-            >
-              View
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={(e) => handleAddItem(info.getValue())}>
-              Add
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button
+          className="pt-1"
+          variant="outline"
+          size="sm"
+          onClick={() =>
+            navigate(`/admin/editPrebuiltPc/${info.getValue()._id}`)
+          }
+        >
+          Edit
+        </Button>
+      ),
+    }),
+    columnHelper.accessor((row) => row, {
+      id: "Delete",
+      cell: (info) => (
+        <Trash2
+          className="w-4 h-4 hover:text-primary hover:cursor-pointer"
+          onClick={() => handleDeleteItem(info.getValue()._id)}
+        />
       ),
     }),
   ];
@@ -311,7 +200,7 @@ const RAMTable = () => {
   return (
     <Container className="flex flex-col gap-4">
       <div className="section-heading flex justify-between items-center">
-        <h1 className="font-extrabold">All RAMs</h1>
+        <h1 className="font-extrabold">All Prebuilt PCs</h1>
         <div className="flex items-end gap-4">
           <Input
             placeholder="Search products by name"
@@ -326,7 +215,7 @@ const RAMTable = () => {
         </div>
       </div>
       <Card>
-        {allProcessorLoading ? (
+        {allPrebuiltPcsLoading ? (
           <div className="flex items-center space-x-4 flex-col">
             <div className="space-y-2 flex gap-2 items-center p-4">
               <Skeleton className="h-10 w-10 rounded-[20px] " />
@@ -353,8 +242,12 @@ const RAMTable = () => {
               <Skeleton className="h-4 w-[500px]" />
             </div>
           </div>
-        ) : allProcessorError ? (
-          <>Oops Something went wrong!</>
+        ) : allPrebuiltPcsError ? (
+          <Card className="min-h-[30vh] flex justify-center items-center">
+            <CardContent className="font-bold flex justify-center items-center">
+              Oops No Data to display!
+            </CardContent>
+          </Card>
         ) : (
           <Table>
             <TableHeader>
@@ -458,4 +351,4 @@ const RAMTable = () => {
   );
 };
 
-export default RAMTable;
+export default AllPrebuiltPcTable;

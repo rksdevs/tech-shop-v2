@@ -5,6 +5,7 @@ import cartSliceReducer from '../src/Features/cartSlice';
 import authSliceReducer from '../src/Features/authSlice';
 import pcBuilderSlice from '../src/Features/pcBuilderSlice';
 import productFilterSlice from "../src/Features/filterSlice";
+import pcConfigureSlice from "../src/Features/pcConfigureSlice"
 
 const store = configureStore({
     reducer: {
@@ -14,6 +15,7 @@ const store = configureStore({
         auth: authSliceReducer,
         customPc: pcBuilderSlice,
         filter: productFilterSlice,
+        PcConfigure: pcConfigureSlice,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(apiSlice.middleware),
     devTools: true,

@@ -63,6 +63,7 @@ import {
   addRam,
   addSsd,
 } from "../../Features/pcBuilderSlice";
+import { Skeleton } from "../ui/skeleton";
 import {
   addConfigureCabinet,
   addConfigureCpu,
@@ -79,16 +80,15 @@ import {
   addConfigureRam,
   addConfigureSsd,
 } from "../../Features/pcConfigureSlice";
-import { Skeleton } from "../../components/ui/skeleton";
 
-const RAMTable = () => {
+const MouseTable = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const {
-    data: allRAM,
+    data: allMice,
     isLoading: allProcessorLoading,
     error: allProcessorError,
-  } = useGetProductsByCategoryWithoutPageQuery("RAM");
+  } = useGetProductsByCategoryWithoutPageQuery("Mouse");
 
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -96,8 +96,8 @@ const RAMTable = () => {
   });
 
   const allProductsData = useMemo(() => {
-    return allRAM || [];
-  }, [allRAM]);
+    return allMice || [];
+  }, [allMice]);
 
   const location = useLocation();
   const isPcConfigurePage = location.pathname.includes(
@@ -458,4 +458,4 @@ const RAMTable = () => {
   );
 };
 
-export default RAMTable;
+export default MouseTable;

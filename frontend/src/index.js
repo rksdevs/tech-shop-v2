@@ -29,6 +29,7 @@ import MyOrders from './Screens/MyOrders';
 import ContactUs from './Screens/ContactUs';
 import AboutUs from './Screens/AboutUs';
 import ConfigurePrebuiltPc from './Screens/Admin/ConfigurePrebuiltPc';
+import EditPrebuiltPc from './Screens/Admin/EditPrebuiltPc';
 
 const router = createBrowserRouter(createRoutesFromElements(
 <Route path='/' element={<App />}>
@@ -63,6 +64,7 @@ const router = createBrowserRouter(createRoutesFromElements(
     <Route path='/admin/allproducts/editProduct/:id' element={<EditProduct />} />
     <Route path='/admin/allorders/editOrder/:id' element={<PlaceOrderScreen />} />
     <Route path='/admin/configurePrebuiltPc' element={<ConfigurePrebuiltPc />} />
+    <Route path='/admin/editPrebuiltPc/:id' element={<EditPrebuiltPc />} />
     {/* <Route path='/admin/allusers/editUser/:id' element={<EditUser />} /> */}
   </Route>
 

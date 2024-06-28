@@ -79,16 +79,16 @@ import {
   addConfigureRam,
   addConfigureSsd,
 } from "../../Features/pcConfigureSlice";
-import { Skeleton } from "../../components/ui/skeleton";
+import { Skeleton } from "../ui/skeleton";
 
-const RAMTable = () => {
+const MousepadTable = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const {
-    data: allRAM,
+    data: allMousepads,
     isLoading: allProcessorLoading,
     error: allProcessorError,
-  } = useGetProductsByCategoryWithoutPageQuery("RAM");
+  } = useGetProductsByCategoryWithoutPageQuery("Mousepad");
 
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -96,8 +96,8 @@ const RAMTable = () => {
   });
 
   const allProductsData = useMemo(() => {
-    return allRAM || [];
-  }, [allRAM]);
+    return allMousepads || [];
+  }, [allMousepads]);
 
   const location = useLocation();
   const isPcConfigurePage = location.pathname.includes(
@@ -458,4 +458,4 @@ const RAMTable = () => {
   );
 };
 
-export default RAMTable;
+export default MousepadTable;

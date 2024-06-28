@@ -25,7 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { MoreHorizontal, Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import Container from "../Container";
 import { Input } from "../ui/input";
@@ -63,6 +63,22 @@ import {
   addRam,
   addSsd,
 } from "../../Features/pcBuilderSlice";
+import {
+  addConfigureCabinet,
+  addConfigureCpu,
+  addConfigureGpu,
+  addConfigureCoolingSystem,
+  addConfigureHdd,
+  addConfigureHeadphone,
+  addConfigureKeyboard,
+  addConfigureMonitor,
+  addConfigureMotherboard,
+  addConfigureMouse,
+  addConfigureMousepad,
+  addConfigurePsu,
+  addConfigureRam,
+  addConfigureSsd,
+} from "../../Features/pcConfigureSlice";
 import { Skeleton } from "../../components/ui/skeleton";
 
 const MemorySSDTable = () => {
@@ -83,52 +99,105 @@ const MemorySSDTable = () => {
     return allSSD || [];
   }, [allSSD]);
 
+  const location = useLocation();
+  const isPcConfigurePage = location.pathname.includes(
+    "admin/configurePrebuiltPc"
+  );
   const handleAddItem = (product, qty = 1) => {
-    switch (product.category) {
-      case "CPU":
-        dispatch(addCpu({ ...product, qty }));
-        break;
-      case "Motherboard":
-        dispatch(addMotherboard({ ...product, qty }));
-        break;
-      case "CPU COOLER":
-        dispatch(addCoolingSystem({ ...product, qty }));
-        break;
-      case "RAM":
-        dispatch(addRam({ ...product, qty }));
-        break;
-      case "SSD":
-        dispatch(addSsd({ ...product, qty }));
-        break;
-      case "HDD":
-        dispatch(addHdd({ ...product, qty }));
-        break;
-      case "GPU":
-        dispatch(addGpu({ ...product, qty }));
-        break;
-      case "PSU":
-        dispatch(addPsu({ ...product, qty }));
-        break;
-      case "Cabinet":
-        dispatch(addCabinet({ ...product, qty }));
-        break;
-      case "Monitor":
-        dispatch(addMonitor({ ...product, qty }));
-        break;
-      case "Keyboard":
-        dispatch(addKeyboard({ ...product, qty }));
-        break;
-      case "Mouse":
-        dispatch(addMouse({ ...product, qty }));
-        break;
-      case "Mousepad":
-        dispatch(addMousepad({ ...product, qty }));
-        break;
-      case "Headphone":
-        dispatch(addHeadphone({ ...product, qty }));
-        break;
-      default:
-        break;
+    if (isPcConfigurePage) {
+      switch (product.category) {
+        case "CPU":
+          dispatch(addConfigureCpu({ ...product, qty }));
+          break;
+        case "Motherboard":
+          dispatch(addConfigureMotherboard({ ...product, qty }));
+          break;
+        case "CPU COOLER":
+          dispatch(addConfigureCoolingSystem({ ...product, qty }));
+          break;
+        case "RAM":
+          dispatch(addConfigureRam({ ...product, qty }));
+          break;
+        case "SSD":
+          dispatch(addConfigureSsd({ ...product, qty }));
+          break;
+        case "HDD":
+          dispatch(addConfigureHdd({ ...product, qty }));
+          break;
+        case "GPU":
+          dispatch(addConfigureGpu({ ...product, qty }));
+          break;
+        case "PSU":
+          dispatch(addConfigurePsu({ ...product, qty }));
+          break;
+        case "Cabinet":
+          dispatch(addConfigureCabinet({ ...product, qty }));
+          break;
+        case "Monitor":
+          dispatch(addConfigureMonitor({ ...product, qty }));
+          break;
+        case "Keyboard":
+          dispatch(addConfigureKeyboard({ ...product, qty }));
+          break;
+        case "Mouse":
+          dispatch(addConfigureMouse({ ...product, qty }));
+          break;
+        case "Mousepad":
+          dispatch(addConfigureMousepad({ ...product, qty }));
+          break;
+        case "Headphone":
+          dispatch(addConfigureHeadphone({ ...product, qty }));
+          break;
+        default:
+          break;
+      }
+    } else {
+      switch (product.category) {
+        case "CPU":
+          dispatch(addCpu({ ...product, qty }));
+          break;
+        case "Motherboard":
+          dispatch(addMotherboard({ ...product, qty }));
+          break;
+        case "CPU COOLER":
+          dispatch(addCoolingSystem({ ...product, qty }));
+          break;
+        case "RAM":
+          dispatch(addRam({ ...product, qty }));
+          break;
+        case "SSD":
+          dispatch(addSsd({ ...product, qty }));
+          break;
+        case "HDD":
+          dispatch(addHdd({ ...product, qty }));
+          break;
+        case "GPU":
+          dispatch(addGpu({ ...product, qty }));
+          break;
+        case "PSU":
+          dispatch(addPsu({ ...product, qty }));
+          break;
+        case "Cabinet":
+          dispatch(addCabinet({ ...product, qty }));
+          break;
+        case "Monitor":
+          dispatch(addMonitor({ ...product, qty }));
+          break;
+        case "Keyboard":
+          dispatch(addKeyboard({ ...product, qty }));
+          break;
+        case "Mouse":
+          dispatch(addMouse({ ...product, qty }));
+          break;
+        case "Mousepad":
+          dispatch(addMousepad({ ...product, qty }));
+          break;
+        case "Headphone":
+          dispatch(addHeadphone({ ...product, qty }));
+          break;
+        default:
+          break;
+      }
     }
   };
 
