@@ -145,7 +145,7 @@ const HeadsetTable = () => {
         case "Mousepad":
           dispatch(addConfigureMousepad({ ...product, qty }));
           break;
-        case "Headphone":
+        case "Headset":
           dispatch(addConfigureHeadphone({ ...product, qty }));
           break;
         default:
@@ -192,7 +192,7 @@ const HeadsetTable = () => {
         case "Mousepad":
           dispatch(addMousepad({ ...product, qty }));
           break;
-        case "Headphone":
+        case "Headset":
           dispatch(addHeadphone({ ...product, qty }));
           break;
         default:

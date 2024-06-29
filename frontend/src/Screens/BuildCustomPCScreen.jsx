@@ -85,6 +85,8 @@ import {
   clearAllBuild,
   deleteCurrentSelection,
 } from "../Features/pcBuilderSlice";
+import { useCalculatePerformanceMutation } from "../../src/Features/performanceCalculatorSlice";
+import { useToast } from "../components/ui/use-toast";
 
 const BuildCustomPCScreen = () => {
   const cart = useSelector((state) => state.cart);
@@ -112,6 +114,19 @@ const BuildCustomPCScreen = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [performanceInsights, setPerformanceInsights] = useState([]);
+  const [games, setGames] = useState("");
+  const [displaySettings, setDisplaySettings] = useState("");
+  const [gameSettings, setGameSettings] = useState("");
+
+  const [
+    calculatePerformance,
+    {
+      isLoading: calculatePerformanceLoading,
+      error: calculatePerformanceError,
+    },
+  ] = useCalculatePerformanceMutation();
 
   const handleShippingAddress = (e) => {
     e.preventDefault();
@@ -192,7 +207,43 @@ const BuildCustomPCScreen = () => {
 
   const handleMerlinQuery = async (e) => {
     e.preventDefault();
-    console.log("Hi I'm Merlin!");
+    if (
+      !games ||
+      !gameSettings ||
+      !displaySettings ||
+      !cpu?.name ||
+      !motherboard?.name
+    ) {
+      toast({
+        title: "Insufficient data to measure performance",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      setPerformanceInsights("");
+      try {
+        const payload = {
+          game: games,
+          settings: gameSettings,
+          display: displaySettings,
+          configuration: {
+            cpu: cpu?.name,
+            motherboard: motherboard?.name,
+            gpu: gpu?.name,
+            ram: ram?.name,
+            coolingSystem: coolingSystem?.name,
+          },
+        };
+        const res = await calculatePerformance(payload).unwrap();
+        setPerformanceInsights(res.split("\n"));
+      } catch (error) {
+        console.log(error);
+        toast({
+          title: "Something went wrong, please try again!",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   const handleDeleteSelection = (item) => {
@@ -200,8 +251,10 @@ const BuildCustomPCScreen = () => {
   };
 
   useEffect(() => {
-    // console.log(section);
-  }, [section]);
+    if (performanceInsights.length) {
+      console.log(performanceInsights);
+    }
+  }, [performanceInsights]);
 
   return (
     <div className="flex w-full flex-col gap-8">
@@ -611,7 +664,7 @@ const BuildCustomPCScreen = () => {
                           </span>
                         </li>
                       </ul>
-                      <Separator className="mt-2" />
+                      {/* <Separator className="mt-2" />
                       <ul className="grid gap-3">
                         <li className="flex items-center justify-between">
                           <span className="text-muted-foreground">
@@ -625,7 +678,7 @@ const BuildCustomPCScreen = () => {
                           </span>
                           <span>Standard</span>
                         </li>
-                      </ul>
+                      </ul> */}
                       <Separator className="my-2" />
                       <ul className="grid gap-3">
                         <li className="flex items-center justify-between">
@@ -677,9 +730,14 @@ const BuildCustomPCScreen = () => {
                           >
                             Resolution
                           </Label>
-                          <Select defaultValue="1080" className="w-3/4">
+                          <Select
+                            className="w-3/4"
+                            onValueChange={(e) =>
+                              setDisplaySettings(`${e} pixels`)
+                            }
+                          >
                             <SelectTrigger>
-                              <SelectValue placeholder="Select a role" />
+                              <SelectValue placeholder="Select resolution" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="1080">
@@ -696,11 +754,14 @@ const BuildCustomPCScreen = () => {
                         </div>
                         <div className="flex items-center gap-3">
                           <Label htmlFor="settings" className="w-1/4 text-left">
-                            Display Settings
+                            Display
                           </Label>
-                          <Select defaultValue="high" className="w-3/4">
+                          <Select
+                            className="w-3/4"
+                            onValueChange={(e) => setGameSettings(e)}
+                          >
                             <SelectTrigger>
-                              <SelectValue placeholder="Select a role" />
+                              <SelectValue placeholder="Game display settings" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="ultra">
@@ -724,6 +785,8 @@ const BuildCustomPCScreen = () => {
                             id="games"
                             placeholder='Enter games separated by "," or space'
                             className="w-4/5"
+                            value={games}
+                            onChange={(e) => setGames(e.target.value)}
                           />
                         </div>
                         {userInfo ? (
@@ -744,33 +807,77 @@ const BuildCustomPCScreen = () => {
                       </form>
                     </div>
                   </CardContent>
-                  <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3 hidden">
-                    <Button className="w-full">Add to Cart</Button>
-                  </CardFooter>
                 </fieldset>
                 <fieldset className="flex flex-col gap-4 rounded-lg border p-4">
                   <legend className="-ml-1 px-1 text-sm font-medium">
                     Merlin
                   </legend>
-                  <CardContent className="p-4 pt-2 text-sm">
-                    <div className="grid gap-3">
-                      <div className="flex flex-col space-y-3">
-                        <Skeleton className="h-[252px] w-[380px] rounded-xl" />
-                        {/* <Skeleton className="h-[170px] w-[380px] rounded-xl" /> */}
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-[380px]" />
-                          <Skeleton className="h-4 w-[380px]" />
-                          <Skeleton className="h-4 w-[380px]" />
-                          <Skeleton className="h-4 w-[380px]" />
-                        </div>
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-[380px]" />
-                          <Skeleton className="h-4 w-[380px]" />
-                          <Skeleton className="h-4 w-[300px]" />
-                        </div>
+                  <Card className="h-[370px]">
+                    {" "}
+                    {/* Set a fixed height for the Card */}
+                    <CardHeader className="bg-muted/50">
+                      <CardTitle>Merlin's Prediction</CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-4 text-sm overflow-y-auto">
+                      {" "}
+                      {/* Make content scrollable */}
+                      <div className="grid gap-3">
+                        {!performanceInsights.length ? (
+                          <div className="flex flex-col space-y-3">
+                            <Skeleton className="h-[160px] w-[380px] rounded-xl" />
+                            {/* <Skeleton className="h-[170px] w-[380px] rounded-xl" /> */}
+
+                            <div className="space-y-2">
+                              <Skeleton className="h-4 w-[380px]" />
+                              <Skeleton className="h-4 w-[380px]" />
+                              <Skeleton className="h-4 w-[380px]" />
+                              <Skeleton className="h-4 w-[300px]" />
+                            </div>
+                          </div>
+                        ) : (
+                          performanceInsights?.map((item, index) => (
+                            <p key={index} className="text-left">
+                              {item}
+                            </p>
+                          ))
+                        )}
                       </div>
-                    </div>
-                  </CardContent>
+                    </CardContent>
+                  </Card>
+                </fieldset>
+
+                <fieldset className="flex flex-col gap-4 rounded-lg border p-4 hidden">
+                  <legend className="-ml-1 px-1 text-sm font-medium">
+                    Merlin
+                  </legend>
+                  <Card>
+                    <CardHeader className="bg-muted/50">
+                      <CardTitle>Merlin's Prediction</CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-4 text-sm">
+                      <div className="grid gap-3">
+                        {!performanceInsights.length ? (
+                          <div className="flex flex-col space-y-3">
+                            <Skeleton className="h-[160px] w-[380px] rounded-xl" />
+                            {/* <Skeleton className="h-[170px] w-[380px] rounded-xl" /> */}
+
+                            <div className="space-y-2">
+                              <Skeleton className="h-4 w-[380px]" />
+                              <Skeleton className="h-4 w-[380px]" />
+                              <Skeleton className="h-4 w-[380px]" />
+                              <Skeleton className="h-4 w-[300px]" />
+                            </div>
+                          </div>
+                        ) : (
+                          performanceInsights?.map((item, index) => (
+                            <p key={index} className="text-left">
+                              {item}
+                            </p>
+                          ))
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
                 </fieldset>
               </div>
             </CardContent>

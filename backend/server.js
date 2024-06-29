@@ -12,6 +12,7 @@ import uploadRoute from './routes/uploadRoute.js';
 import razorPayRoute from './routes/rzpRoute.js';
 import offerRoute from "./routes/offerRoute.js";
 import prebuiltPcRoute from "./routes/preBuiltPcRoute.js";
+import performanceCalculatorRoute from "./routes/performanceCalculatorRoute.js";
 import { notFound, errorHandler } from './middlewares/errorMiddleware.js';
 
 connectToDb(); //Connection to DB
@@ -32,6 +33,7 @@ app.use('/api/upload', uploadRoute)
 app.use('/api/razorpay', razorPayRoute)
 app.use('/api/offers', offerRoute)
 app.use('/api/prebuiltPc', prebuiltPcRoute)
+app.use('/api/calculatePerformance', performanceCalculatorRoute)
 
 app.get('/api/config/paypal', (req,res)=>res.send({clientId: process.env.PAYPAL_CLIENT_ID}))
 
