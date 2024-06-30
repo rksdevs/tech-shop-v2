@@ -93,10 +93,10 @@ export function NavbarBottom() {
 
           <div className="flex items-center gap-4 md:gap-2 lg:gap-4">
             <Link
-              to="/blog"
+              to="/aboutus"
               className="text-background transition-colors hover:text-foreground"
             >
-              Blogs
+              About Us
             </Link>
             <Link
               to="/contactus"
