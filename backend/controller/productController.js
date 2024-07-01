@@ -1,6 +1,9 @@
 import asyncHandler from "../middlewares/asyncHandler.js";
 import Offer from "../models/offerModel.js";
 import Product from "../models/productModel.js";
+import multer from "multer";
+import multerS3 from "multer-s3";
+import { s3 } from "../utils/aws.S3bucket.js";
 
 //@desc Fetch all products
 //@route GET /api/products
@@ -517,4 +520,30 @@ const updateManyProducts = asyncHandler(async(req, res)=>{
       }
 })
 
-export {getAllProducts, getProductById, updateManyProducts, createProduct,getProductsByCategoryWithoutPage, updateProduct, deleteProduct, getProductsByCategory, updateProductStock, createProductReview, getTopRatedProducts, getAllCategories, getAllBrands, getProductsByBrands, getLatestProducts, getFilteredProducts, getAllProductsAdmin, addAllProductsWarranty, getProductFeatureDetails}
+const upload = multer({
+    storage: multerS3({
+      s3: s3,
+      bucket: 'myawsbucket-computermaker',
+      acl: 'public-read', // or private based on your use case
+      key: function (req, file, cb) {
+        cb(null, Date.now().toString() + '-' + file.originalname); // unique file name
+      },
+    }),
+  });
+
+//   const generateSignedUrl = (key) => {
+//     const params = {
+//       Bucket: 'myawsbucket-computermaker',
+//       Key: key,
+//       Expires: 60 * 5, // URL expires in 5 minutes
+//     };
+  
+//     return s3.getSignedUrl('getObject', params);
+//   };
+
+  const uploadImage = asyncHandler(async(req,res)=>{
+    // const signedUrl = generateSignedUrl(req.file.key);
+    res.status(200).json({ message: 'Image uploaded successfully', data: req.file.location });
+  })
+
+export {getAllProducts, getProductById, updateManyProducts, createProduct,getProductsByCategoryWithoutPage, updateProduct, deleteProduct, getProductsByCategory, updateProductStock, createProductReview, getTopRatedProducts, getAllCategories, getAllBrands, getProductsByBrands, getLatestProducts, getFilteredProducts, getAllProductsAdmin, addAllProductsWarranty, getProductFeatureDetails, upload, uploadImage}

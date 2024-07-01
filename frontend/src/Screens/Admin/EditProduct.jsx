@@ -54,6 +54,7 @@ import {
   useGetAllCategoriesQuery,
   useGetProductDetailsQuery,
   useUpdateProductMutation,
+  useUploadImageMutation,
 } from "../../Features/productApiSlice";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -80,6 +81,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "../../components/ui/tabs";
+import axios from "axios";
 
 function EditProduct() {
   const { id: productId } = useParams();
@@ -374,6 +376,30 @@ function EditProduct() {
     product?.featureDetails?.featureTen || ""
   );
 
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
+
+  const [uploadImageFunc, { isLoading: uploadLoading, error: uploadError }] =
+    useUploadImageMutation();
+
+  const handleFileChange = (event) => {
+    setSelectedImageFile(event.target.files[0]);
+  };
+
+  const handleImageUpload = async () => {
+    if (!selectedImageFile) return;
+
+    const formData = new FormData();
+    formData.append("image", selectedImageFile);
+
+    try {
+      const res = await uploadImageFunc(formData).unwrap();
+      setImage(res.data);
+      // console.log(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleProductUpdate = async (e) => {
     e.preventDefault();
     try {
@@ -424,6 +450,18 @@ function EditProduct() {
       });
     }
   };
+
+  // const getImageSignedUrl = async (imageKey) => {
+  //   try {
+  //     const response = await axios.get(
+  //       `/api/getImage/getSignedUrl/${imageKey}`
+  //     ); // Fetch signed URL for the image
+  //     return response.data.signedUrl;
+  //   } catch (error) {
+  //     console.error("Error fetching signed URL:", error);
+  //     return null;
+  //   }
+  // };
 
   const [warrantyDetails, setWarrantyDetails] = useState({
     warrantyPeriod: product?.warrantyDetails?.warrantyPeriod || "1",
@@ -820,21 +858,6 @@ function EditProduct() {
                     <CardHeader>
                       <CardTitle className="flex items-center justify-between">
                         Offers{" "}
-                        {/* <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Trash2
-                                className={`${
-                                  !isOnOffer ? "hidden" : ""
-                                } hover:text-primary hover:cursor-pointer w-4 h-4`}
-                                onClick={handleRemoveOffer}
-                              />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Remove Offers</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider> */}
                       </CardTitle>
                       <CardDescription>
                         {product?.isOnOffer
@@ -854,42 +877,6 @@ function EditProduct() {
                             <Input placeholder="No offer applied" readOnly />
                           </div>
                         )}
-                        {/* {allOffers?.length ? (
-                          <div className="grid gap-3">
-                            <Label htmlFor="status">Availble Offers</Label>
-                            <Select
-                              value={offerName}
-                              onValueChange={(e) => setOfferName(e)}
-                            >
-                              <SelectTrigger
-                                id="status"
-                                aria-label="Select status"
-                              >
-                                <SelectValue
-                                  placeholder={
-                                    product?.isOnOffer
-                                      ? product?.offerName
-                                      : "Select offer"
-                                  }
-                                />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {allOffers?.map((offer) => (
-                                  <SelectItem key={offer?._id} value={offer}>
-                                    <span className="font-semibold text-muted-foreground">
-                                      {offer?.offerDiscount}% -{" "}
-                                    </span>
-                                    {offer?.offerName}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        ) : (
-                          <div className="grid gap-3">
-                            <Input placeholder="No offers available" readOnly />
-                          </div>
-                        )} */}
                       </div>
                     </CardContent>
                   </Card>
@@ -900,15 +887,19 @@ function EditProduct() {
                     <CardHeader>
                       <CardTitle>Product Image</CardTitle>
                       <CardDescription className="flex gap-6 items-end">
-                        Update product image
-                        <Upload className="h-5 w-5 hover:text-primary hover:cursor-pointer" />
+                        {/* Update product image
+                        <Upload className="h-5 w-5 hover:text-primary hover:cursor-pointer" /> */}
+                        <Input type="file" onChange={handleFileChange} />
+                        <Button onClick={handleImageUpload}>
+                          <Upload className="h-4 w-4" />
+                        </Button>
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="grid gap-2">
                         <img
-                          src={placeHolderImg}
-                          alt=""
+                          src={image}
+                          alt="upload sample img"
                           className="aspect-square w-full rounded-md object-cover"
                         />
                       </div>

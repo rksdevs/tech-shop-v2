@@ -34,7 +34,7 @@ const ProductCard = ({
       >
         {isOnOffer && <Badge className="absolute right-3">Offer</Badge>}
         <img
-          src={imageToAdd}
+          src={image === "/images/sample.jpg" ? imageToAdd : image}
           alt="product"
           className={`h-1/2 object-cover ${imgClass}`}
         />

@@ -93,7 +93,7 @@ const AllProducts = () => {
         categoryFilter,
         priceFilter: priceFilter?.[0],
       }).unwrap();
-      console.log(res);
+      // console.log(res);
       setFilteredProductsData(res?.products);
       setCurrentPage(res?.page);
       setTotalPages(res?.pages);
@@ -136,7 +136,7 @@ const AllProducts = () => {
         categoryFilter,
         priceFilter: priceFilter?.[0],
       }).unwrap();
-      console.log(res);
+      // console.log(res);
       setFilteredProductsData(res?.products);
       setCurrentPage(res?.page);
       setTotalPages(res?.pages);
@@ -281,7 +281,7 @@ const AllProducts = () => {
                 </fieldset>
               </form>
             </div>
-            <div className="relative grid grid-cols-4 grid-rows-4 gap-4 rounded-xl bg-muted/50 p-4 md:col-span-4 min-h-fit">
+            {/* <div className="relative grid grid-cols-4 grid-rows-4 gap-4 rounded-xl bg-muted/50 p-4 md:col-span-4 min-h-fit">
               {filteredProductsData?.map((product, index) => (
                 <div className="p-1" key={index}>
                   <ProductCard
@@ -294,13 +294,41 @@ const AllProducts = () => {
                     productDiscount={product?.productDiscount}
                     isOnOffer={product?.isOnOffer}
                     currentPrice={product?.currentPrice}
+                    image={product?.image}
                     className="w-[170px]"
                     nameClass="text-[14px]"
                     ratingClass="h-3 w-3"
                   />
                 </div>
               ))}
-              <div className="col-span-4 mt-4 flex justify-center">
+              <div className="col-span-4 mt-4 flex justify-center pagination">
+                <PaginationComponent
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                />
+              </div>
+            </div> */}
+            <div className="relative grid grid-cols-4 grid-rows-4 gap-4 rounded-xl bg-muted/50 p-4 md:col-span-4 min-h-fit pb-[60px]">
+              {filteredProductsData?.map((product, index) => (
+                <div className="p-1" key={index}>
+                  <ProductCard
+                    category={product?.category}
+                    name={product?.name}
+                    rating={product?.rating}
+                    ratingCount={product?.numReviews}
+                    price={product?.price}
+                    productId={product?._id}
+                    productDiscount={product?.productDiscount}
+                    isOnOffer={product?.isOnOffer}
+                    currentPrice={product?.currentPrice}
+                    image={product?.image}
+                    className="w-[170px]"
+                    nameClass="text-[14px]"
+                    ratingClass="h-3 w-3"
+                  />
+                </div>
+              ))}
+              <div className="col-span-4 mt-4 flex justify-center pagination absolute bottom-2 left-0 w-full">
                 <PaginationComponent
                   currentPage={currentPage}
                   totalPages={totalPages}
