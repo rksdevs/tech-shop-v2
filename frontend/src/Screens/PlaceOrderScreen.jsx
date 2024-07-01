@@ -93,6 +93,7 @@ const PlaceOrderScreen = () => {
 
   const [courierService, setCourierService] = useState("");
   const [trackingNumber, setTrackingNumber] = useState("");
+  const [orderInfo, setOrderInfo] = useState("");
   const [open, setOpen] = useState(false);
 
   const {
@@ -245,10 +246,11 @@ const PlaceOrderScreen = () => {
     }
   };
 
-  // useEffect(() => {
-  //   console.log(process.env.REACT_APP_RAZORPAY_TEST_KEY);
-  //   console.log(process.env.REACT_APP_RAZORPAY_TEST_SECRET);
-  // }, []);
+  useEffect(() => {
+    if (orderData?._id) {
+      setOrderInfo(orderData?._id);
+    }
+  }, [orderData]);
   return (
     <div className="flex w-full flex-col gap-8">
       <Container className="flex flex-col gap-4">
@@ -531,7 +533,9 @@ const PlaceOrderScreen = () => {
                   <ul className="grid gap-3 pt-4">
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">Subtotal</span>
-                      <span>₹{orderData?.itemsPrice} </span>
+                      <span>
+                        ₹{orderData?.itemsPrice - orderData?.taxPrice}{" "}
+                      </span>
                     </li>
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">Shipping</span>
@@ -547,7 +551,9 @@ const PlaceOrderScreen = () => {
                     </li>
                   </ul>
                   {!orderData?.isPaid && (
-                    <Button onClick={handleRzpPayment}>Pay Now</Button>
+                    <Button onClick={handleRzpPayment} disabled={!orderInfo}>
+                      Pay Now
+                    </Button>
                   )}
                 </CardContent>
               </Card>

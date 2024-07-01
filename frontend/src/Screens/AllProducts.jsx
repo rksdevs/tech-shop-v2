@@ -291,6 +291,9 @@ const AllProducts = () => {
                     ratingCount={product?.numReviews}
                     price={product?.price}
                     productId={product?._id}
+                    productDiscount={product?.productDiscount}
+                    isOnOffer={product?.isOnOffer}
+                    currentPrice={product?.currentPrice}
                     className="w-[170px]"
                     nameClass="text-[14px]"
                     ratingClass="h-3 w-3"

@@ -78,11 +78,7 @@ const preBuiltPcScehma = new mongoose.Schema({
                 
                 default: 0
             },
-            priceAfterDiscount: {
-                type: Number,
-                
-                default: 0
-            },
+            
             isOnOffer: {
                 type: Boolean,
                 
@@ -280,11 +276,7 @@ const preBuiltPcScehma = new mongoose.Schema({
                 
                 default: 0
             },
-            priceAfterDiscount: {
-                type: Number,
-                
-                default: 0
-            },
+            
             isOnOffer: {
                 type: Boolean,
                 
@@ -482,11 +474,7 @@ const preBuiltPcScehma = new mongoose.Schema({
                 
                 default: 0
             },
-            priceAfterDiscount: {
-                type: Number,
-                
-                default: 0
-            },
+            
             isOnOffer: {
                 type: Boolean,
                 
@@ -684,11 +672,7 @@ const preBuiltPcScehma = new mongoose.Schema({
                 
                 default: 0
             },
-            priceAfterDiscount: {
-                type: Number,
-                
-                default: 0
-            },
+            
             isOnOffer: {
                 type: Boolean,
                 
@@ -886,11 +870,7 @@ const preBuiltPcScehma = new mongoose.Schema({
                 
                 default: 0
             },
-            priceAfterDiscount: {
-                type: Number,
-                
-                default: 0
-            },
+            
             isOnOffer: {
                 type: Boolean,
                 
@@ -1088,11 +1068,7 @@ const preBuiltPcScehma = new mongoose.Schema({
                 
                 default: 0
             },
-            priceAfterDiscount: {
-                type: Number,
-                
-                default: 0
-            },
+            
             isOnOffer: {
                 type: Boolean,
                 
@@ -1290,11 +1266,7 @@ const preBuiltPcScehma = new mongoose.Schema({
                 
                 default: 0
             },
-            priceAfterDiscount: {
-                type: Number,
-                
-                default: 0
-            },
+            
             isOnOffer: {
                 type: Boolean,
                 
@@ -1492,11 +1464,7 @@ const preBuiltPcScehma = new mongoose.Schema({
                 
                 default: 0
             },
-            priceAfterDiscount: {
-                type: Number,
-                
-                default: 0
-            },
+            
             isOnOffer: {
                 type: Boolean,
                 
@@ -1694,11 +1662,7 @@ const preBuiltPcScehma = new mongoose.Schema({
                 
                 default: 0
             },
-            priceAfterDiscount: {
-                type: Number,
-                
-                default: 0
-            },
+            
             isOnOffer: {
                 type: Boolean,
                 

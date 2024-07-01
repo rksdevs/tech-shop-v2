@@ -172,7 +172,19 @@ const CheckoutScreen = () => {
                       onChange={(e) => setCountry(e.target.value)}
                     />
                   </div>
-                  <Button type="submit" className="w-full">
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={
+                      !address ||
+                      !city ||
+                      !postalCode ||
+                      !country ||
+                      !phone ||
+                      !state ||
+                      cartItems.length < 1
+                    }
+                  >
                     Proceed
                   </Button>
                 </form>
@@ -218,7 +230,7 @@ const CheckoutScreen = () => {
                           <span className="text-muted-foreground">
                             Subtotal
                           </span>
-                          <span>₹{cart?.itemsPrice}</span>
+                          <span>₹{cart?.itemsPrice - cart?.taxPrice}</span>
                         </li>
                         <li className="flex items-center justify-between">
                           <span className="text-muted-foreground">
@@ -294,7 +306,7 @@ const CheckoutScreen = () => {
                           <span className="text-muted-foreground">
                             Subtotal
                           </span>
-                          <span>₹{cart?.itemsPrice}</span>
+                          <span>₹{cart?.itemsPrice - cart?.taxPrice}</span>
                         </li>
                         <li className="flex items-center justify-between">
                           <span className="text-muted-foreground">
@@ -381,7 +393,18 @@ const CheckoutScreen = () => {
                       >
                         Edit Details
                       </Button>
-                      <Button onClick={handleCreateOrder}>
+                      <Button
+                        onClick={handleCreateOrder}
+                        disabled={
+                          !address ||
+                          !city ||
+                          !postalCode ||
+                          !country ||
+                          !phone ||
+                          !state ||
+                          cartItems.length < 1
+                        }
+                      >
                         Confirm & Checkout
                       </Button>
                     </div>

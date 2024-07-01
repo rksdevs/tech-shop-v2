@@ -128,6 +128,9 @@ const HomeScreen = () => {
                     ratingCount={product?.numReviews}
                     price={product?.price}
                     productId={product?._id}
+                    productDiscount={product?.productDiscount}
+                    isOnOffer={product?.isOnOffer}
+                    currentPrice={product?.currentPrice}
                   />
                 </div>
               </CarouselItem>

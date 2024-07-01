@@ -76,10 +76,9 @@ const productSchema = new mongoose.Schema({
         required: true,
         default: 0
     },
-    priceAfterDiscount: {
+    currentPrice: {
         type: Number,
         required: true,
-        default: 0
     },
     isOnOffer: {
         type: Boolean,
@@ -222,6 +221,15 @@ const productSchema = new mongoose.Schema({
         memoryDimensions: {type:String},
     }
 }, {timestamps: true})
+
+productSchema.pre('save', function(next) {
+    if (this.productDiscount > 0) {
+      this.currentPrice = this.price - (this.price * this.productDiscount / 100);
+    } else {
+      this.currentPrice = this.price;
+    }
+    next();
+  });
 
 const Product = mongoose.model("Product", productSchema);
 

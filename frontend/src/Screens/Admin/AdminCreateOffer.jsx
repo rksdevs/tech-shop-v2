@@ -21,10 +21,11 @@ import { Label } from "../../components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { saveShippingAddress } from "../../Features/cartSlice";
 import { Separator } from "../../components/ui/separator";
-import { Plus, Truck } from "lucide-react";
+import { Plus, Trash2, Truck } from "lucide-react";
 import {
   useApplyOfferMutation,
   useCreateOfferMutation,
+  useDeleteOfferMutation,
   useGetAllOffersQuery,
   useUpdateOfferMutation,
 } from "../../Features/offersApiSlice";
@@ -91,6 +92,11 @@ const AdminCreateOffer = () => {
 
   const [applyOffer, { isLoading: applyOfferLoading, error: applyOfferError }] =
     useApplyOfferMutation();
+
+  const [
+    deleteOffer,
+    { isLoading: deleteOfferLoading, error: deleteOfferError },
+  ] = useDeleteOfferMutation();
 
   useEffect(() => {
     // console.log(allOffers);
@@ -191,6 +197,51 @@ const AdminCreateOffer = () => {
     }
   };
 
+  const handleDeleteOffer = async (e) => {
+    // console.log(e);
+    e.preventDefault();
+    try {
+      if (!selectedOffer?.offerId) {
+        toast({
+          title: "No offers selected, select offer to delete!",
+          variant: "destructive",
+        });
+        return;
+      } else if (selectedOffer?.status === "Active") {
+        toast({
+          title: "Cannot delete active offer. Deactivate it to delete!",
+          variant: "destructive",
+        });
+        return;
+      } else {
+        await deleteOffer(selectedOffer?.offerId).unwrap();
+        toast({
+          title: "Offer deleted successfully!",
+        });
+        refetch();
+      }
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Can not delete offer!",
+        description: error?.message || error?.data?.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (selectedOffer?.offerName) {
+      setOfferName(selectedOffer?.offerName);
+    }
+    if (selectedOffer?.offerDiscount) {
+      setOfferDiscount(selectedOffer?.offerDiscount);
+    }
+    if (selectedOffer?.status) {
+      setStatus(selectedOffer?.status);
+    }
+  }, [selectedOffer]);
+
   return (
     <div className="flex w-full flex-col gap-8">
       <Container className="flex flex-col gap-4">
@@ -207,10 +258,25 @@ const AdminCreateOffer = () => {
               <TabsContent value="edit" className="flex flex-col mt-0 gap-4">
                 <div className="flex justify-between mt-4 items-center">
                   <h1 className="text-lg font-bold">Create and Edit Offer</h1>
-                  <Button className="flex gap-1" onClick={handleCreateOffer}>
-                    {" "}
-                    <Plus className="h-4 w-4" /> Create Offer
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      className="flex gap-1 items-center justify-center"
+                      size="sm"
+                      onClick={handleDeleteOffer}
+                      disabled={!offerId}
+                    >
+                      {" "}
+                      <Trash2 className="h-4 w-4 pb-0.5" /> Delete Offer
+                    </Button>
+                    <Button
+                      className="flex gap-1"
+                      size="sm"
+                      onClick={handleCreateOffer}
+                    >
+                      {" "}
+                      <Plus className="h-4 w-4 pb-0.5" /> Create Offer
+                    </Button>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-4 text-left mt-2">
                   <Label htmlFor="offer">Select Offer To Edit</Label>
@@ -258,10 +324,10 @@ const AdminCreateOffer = () => {
                       <Label htmlFor="status">Status</Label>
                       <Select
                         onValueChange={(e) => setStatus(e)}
-                        value={status}
+                        defaultValue={status}
                       >
                         <SelectTrigger id="status" aria-label="Status">
-                          <SelectValue placeholder="Status" />
+                          <SelectValue placeholder={status || "Status"} />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="Active">Active</SelectItem>
@@ -279,7 +345,11 @@ const AdminCreateOffer = () => {
                         readOnly
                       />
                     </div>
-                    <Button type="submit" className="w-full">
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={!status || !offerDiscount || !offerName}
+                    >
                       Update
                     </Button>
                   </form>
@@ -293,7 +363,7 @@ const AdminCreateOffer = () => {
                   <Label htmlFor="offer">Select Offer To Apply</Label>
                   <Select onValueChange={(e) => handleApplyOfferSelection(e)}>
                     <SelectTrigger id="offer" aria-label="offer">
-                      <SelectValue placeholder="Select offer to edit" />
+                      <SelectValue placeholder="Select offer to apply" />
                     </SelectTrigger>
                     <SelectContent>
                       {allOffers?.map((offer, index) => (
@@ -315,7 +385,7 @@ const AdminCreateOffer = () => {
                       </Label>
                       <Select onValueChange={(e) => setProductCategory(e)}>
                         <SelectTrigger id="offer" aria-label="offer">
-                          <SelectValue placeholder="Select offer to edit" />
+                          <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
                           {allCategories?.map((category, index) => (
@@ -354,7 +424,7 @@ const AdminCreateOffer = () => {
                       disabled={
                         selectedOfferToApply?.status === "Inactive"
                           ? true
-                          : false
+                          : false || !productCategory
                       }
                     >
                       Apply Offer

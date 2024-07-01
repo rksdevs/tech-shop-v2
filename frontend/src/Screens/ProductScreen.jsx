@@ -243,13 +243,19 @@ const ProductScreen = () => {
               <div className="flex items-center mt-2 font-bold text-l text-left pb-2 border-b">
                 {product?.name}
               </div>
-              <div className="flex items-center mt-2 font-extrabold text-left text-[2rem] pt-2 text-primary flex gap-4">
-                ₹ {product?.price}{" "}
-                <span className="font-semibold text-muted-foreground text-base line-through pt-4">
-                  {" "}
-                  ₹ 30000
-                </span>
-              </div>
+              {product?.productDiscount ? (
+                <div className="flex items-center mt-2 font-extrabold text-left text-[2rem] pt-2 text-primary flex gap-4">
+                  ₹ {product?.currentPrice}{" "}
+                  <span className="font-semibold text-muted-foreground text-base line-through pt-4">
+                    {" "}
+                    ₹ {product?.price}
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center mt-2 font-extrabold text-left text-[2rem] pt-2 text-primary flex gap-4">
+                  ₹ {product?.price}{" "}
+                </div>
+              )}
               <div className="item-details flex gap-12 justify-start mt-4">
                 <div className="flex flex-col gap-8 justify-between">
                   <div className="item-details-heading text-left font-semibold">

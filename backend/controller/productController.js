@@ -1,4 +1,5 @@
 import asyncHandler from "../middlewares/asyncHandler.js";
+import Offer from "../models/offerModel.js";
 import Product from "../models/productModel.js";
 
 //@desc Fetch all products
@@ -53,7 +54,6 @@ const createProduct = asyncHandler(async(req,res)=>{
         numReviews: 0,
         description: 'Sample Description',
         productDiscount: 0,
-        priceAfterDiscount: 0,
         sku: "SAMPLE",
         brand: "AMD",
         category: "Motherboard",
@@ -69,7 +69,7 @@ const createProduct = asyncHandler(async(req,res)=>{
             expansionSlots: "",
             storageInterface: "",
             ramType: "",
-            ramFormFactor: "",
+            ramFormFactor: "NA",
             wattage: "",
             networkCardInterfaces: ""
         }
@@ -89,9 +89,9 @@ const updateProduct = asyncHandler(async(req,res)=>{
 
     if (product) {
         product.name = name;
-        product.price = price;
         product.brand = brand;
         product.category = category;
+        product.price = price;
         product.sku = sku;
         product.image = image;
         product.countInStock = countInStock;
@@ -104,16 +104,33 @@ const updateProduct = asyncHandler(async(req,res)=>{
         product.compatibilityDetails.ramType = ramType;
         product.compatibilityDetails.ramFormFactor = ramFormFactor;
         product.productDiscount = productDiscount;
-
         product.warrantyDetails = warrantyDetails;
         product.specificationDetails = specificationDetails;
         product.featureDetails = featureDetails;
 
-        if(productDiscount > 0) {
-            product.priceAfterDiscount = product.price - (product.price* product.productDiscount/100)
-        } else {
-            product.priceAfterDiscount = product.price;
+        //if product is in offer and we update the discount to 0
+        if(product.isOnOffer) {
+            if(productDiscount === 0) {
+                product.isOnOffer = false;
+            } else {
+                try {
+                    const appliedOffer = await Offer.find({offerName: product.offerName});
+                    if (appliedOffer.offerDiscount !== productDiscount) {
+                        product.isOnOffer = false;
+                        product.offerName = ""
+                    }
+                } catch (error) {
+                    console.log(error);
+                    throw new Error('Can not find offer details')
+                }
+            }
         }
+
+        // if(productDiscount > 0) {
+        //     product.price = price - (price * product.productDiscount/100)
+        // } else {
+        //     product.price = price;
+        // }
 
         const updatedProduct = await product.save();
         res.json(updatedProduct);
@@ -485,4 +502,19 @@ const getProductsByCategoryWithoutPage = asyncHandler(async(req,res)=>{
     }
 })
 
-export {getAllProducts, getProductById, createProduct,getProductsByCategoryWithoutPage, updateProduct, deleteProduct, getProductsByCategory, updateProductStock, createProductReview, getTopRatedProducts, getAllCategories, getAllBrands, getProductsByBrands, getLatestProducts, getFilteredProducts, getAllProductsAdmin, addAllProductsWarranty, getProductFeatureDetails}
+//@desc Fetch all products
+//@route GET /api/products
+//@access Admin --//optional
+const updateManyProducts = asyncHandler(async(req, res)=>{
+    try {
+        const result = await Product.updateMany(
+            { category: 'CPU' },
+            { $mul: { price: 1.00783 } }
+        );
+        res.status(200).json({ message: 'Prices updated successfully', result });
+      } catch (error) {
+        res.status(500).json({ message: 'Error updating prices', error });
+      }
+})
+
+export {getAllProducts, getProductById, updateManyProducts, createProduct,getProductsByCategoryWithoutPage, updateProduct, deleteProduct, getProductsByCategory, updateProductStock, createProductReview, getTopRatedProducts, getAllCategories, getAllBrands, getProductsByBrands, getLatestProducts, getFilteredProducts, getAllProductsAdmin, addAllProductsWarranty, getProductFeatureDetails}

@@ -119,7 +119,7 @@ const CartScreen = () => {
                     </CardHeader>
                     <CardContent className="flex flex-grow flex-1 justify-center items-center">
                       <div className="product-price w-full font-bold">
-                        ₹ {item?.priceAfterDiscount}
+                        ₹ {item?.price}
                       </div>
                       <div className="product-qty w-full flex gap-2 justify-center items-center">
                         <Select>
@@ -145,7 +145,7 @@ const CartScreen = () => {
                         </Select>
                       </div>
                       <div className="product-total w-full font-bold">
-                        ₹ {item?.qty * item?.priceAfterDiscount}
+                        ₹ {item?.qty * item?.price}
                       </div>
                       <div className="product-actions w-full">
                         <div className="flex justify-center gap-4">

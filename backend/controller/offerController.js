@@ -31,28 +31,65 @@ const updateOffer = asyncHandler(async(req, res)=> {
     // const offerId = req.params.id;
     try {
         const offer = await Offer.findById(offerId);
+        
         if(!offer) {
             res.status(404)
             throw new Error('Offer doesnt exists')
         } else {
+            const currentDiscount = offer?.offerDiscount;
+            const currentOfferName = offer?.offerName;
+            //update offer here
             offer.offerName = offerName;
             offer.offerDiscount = offerDiscount;
             offer.status = status;
-
             const updatedOffer = await offer.save();
+
+            //update products based on scenario
             if(status === "Inactive") {
                 const productsToUpdate = await Product.find({offerName:offer.offerName})
                 if(productsToUpdate.length) {
                     let productPromise = productsToUpdate.map(async(product)=> {
                         product.isOnOffer = false;
                         product.productDiscount = 0;
-                        product.priceAfterDiscount = product.price;
+                        // product.price = product.price + (product.price*currentDiscount/100)
+                        // product.priceAfterDiscount = product.price;
                         await product.save();
                     })
 
                     Promise.all(productPromise);
                 }
             }
+            //what if the product offer discount value is changed?
+            if (status === "Active" && offerDiscount !== currentDiscount) {
+                console.log("63 offer controller")
+                console.log(currentOfferName)
+                const productsToUpdate = await Product.find({offerName:currentOfferName})
+                if(productsToUpdate.length) {
+                console.log("66 offer controller")
+                    let productPromise = productsToUpdate.map(async(product)=> {
+                        product.productDiscount = offerDiscount;
+                        product.offerName = offerName;
+                        await product.save();
+                    })
+
+                    Promise.all(productPromise);
+                }
+            }
+
+            //what if only the offer name is changed
+            if (status === "Active" && offerName !== currentOfferName) {
+                const productsToUpdate = await Product.find({offerName:currentOfferName})
+                if(productsToUpdate.length) {
+                    let productPromise = productsToUpdate.map(async(product)=> {
+                        product.productDiscount = offerDiscount;
+                        product.offerName = offerName;
+                        await product.save();
+                    })
+
+                    Promise.all(productPromise);
+                }
+            }
+
             res.status(200).json(updatedOffer)
         }
     } catch (error) {
@@ -69,6 +106,9 @@ const deleteOffer = asyncHandler(async(req, res)=> {
         if(!offer) {
             res.status(404)
             throw new Error('Offer doesnt exists')
+        } else if (offer.status === "Active") {
+            res.status(404)
+            throw new Error('Can not delete offer! Offer is still active, deactivate it to delete')
         } else {
             await Offer.deleteOne({_id: offer._id});
             res.status(200).json({message: 'Offer deleted successfully'})
@@ -99,8 +139,9 @@ const updateProductOffer = asyncHandler(async(req, res)=> {
         if(getProductsByCategory.length) {
             //update their productDiscount, isOnOffer, offerName
             const productsPromise = getProductsByCategory.map(async (productToUpdate)=> {
+                const updatedPrice = productToUpdate.price - (productToUpdate.price* offer.offerDiscount/100)
                 productToUpdate.productDiscount = offer.offerDiscount;
-                productToUpdate.priceAfterDiscount = productToUpdate.price - (productToUpdate.price* productToUpdate.productDiscount/100)
+                // productToUpdate.price = updatedPrice;
                 productToUpdate.isOnOffer = true;
                 productToUpdate.offerName = offer.offerName;
                 await productToUpdate.save();
